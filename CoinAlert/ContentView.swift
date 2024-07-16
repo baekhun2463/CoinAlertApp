@@ -7,32 +7,6 @@
 
 import SwiftUI
 
-struct MainView: View{
-    var body: some View {
-        VStack{
-            Text("메인 화면임")
-                .font(.largeTitle)
-                .padding()
-        }
-        .background(Color.white)
-        .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-    }
-}
-
-struct SplashView: View {
-    var body: some View {
-        VStack {
-            Spacer()
-            
-            //로고 들어갈 자리
-            Text("이미지 들어갈 자리")
-                .font(.largeTitle)
-            Spacer()
-        }
-        .background(Color.white)
-        .edgesIgnoringSafeArea(/*@START_MENU_TOKEN@*/.all/*@END_MENU_TOKEN@*/)
-    }
-}
 
 struct ContentView: View {
     
@@ -44,20 +18,25 @@ struct ContentView: View {
             
             DispatchQueue.main.async {
                 showMainView = true
+                
+                
             }
         }
+        
+        
     }
     
     var body: some View {
         Group {
             if showMainView {
-                MainView()
+                MainTabView()
             } else {
                 SplashView()
                     .onAppear {
                         loadData()
                     }
             }
+           
         }
     }
 }
