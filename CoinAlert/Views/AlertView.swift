@@ -2,7 +2,7 @@
 //  AlertView.swift
 //  CoinAlert
 //
-//  Created by 백지훈 on 7/16/24.
+//  Created by 백지훈 on 7/17/24.
 //
 
 import SwiftUI

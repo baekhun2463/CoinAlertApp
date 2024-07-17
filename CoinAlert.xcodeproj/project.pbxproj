@@ -19,6 +19,9 @@
 		0F0F331A2C47B15200BB0D05 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F33192C47B15200BB0D05 /* DGCharts */; };
 		0F0F331C2C47B15200BB0D05 /* DGChartsDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F331B2C47B15200BB0D05 /* DGChartsDynamic */; };
 		0F0F331F2C47B67800BB0D05 /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F331E2C47B67800BB0D05 /* SwiftUICharts */; };
+		0F0F33212C47C58900BB0D05 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33202C47C58900BB0D05 /* AppDelegate.swift */; };
+		0F0F33232C47CBC600BB0D05 /* SetAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33222C47CBC500BB0D05 /* SetAlertView.swift */; };
+		0F0F33252C47CDE800BB0D05 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33242C47CDE800BB0D05 /* AlertView.swift */; };
 		0F1245592C4619490012E2D0 /* CoinAlertApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245582C4619490012E2D0 /* CoinAlertApp.swift */; };
 		0F12455B2C4619490012E2D0 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F12455A2C4619490012E2D0 /* ContentView.swift */; };
 		0F12455D2C46194A0012E2D0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0F12455C2C46194A0012E2D0 /* Assets.xcassets */; };
@@ -29,13 +32,15 @@
 		0F1245722C4634020012E2D0 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245712C4634020012E2D0 /* MainTabView.swift */; };
 		0F1245742C4635E40012E2D0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245732C4635E40012E2D0 /* SettingsView.swift */; };
 		0F1245762C4637940012E2D0 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245752C4637940012E2D0 /* CommunityView.swift */; };
-		0F1245782C46379D0012E2D0 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245772C46379D0012E2D0 /* AlertView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0F0F33032C47AB6F00BB0D05 /* PriceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceData.swift; sourceTree = "<group>"; };
 		0F0F33052C47AB7F00BB0D05 /* BinancePrice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BinancePrice.swift; sourceTree = "<group>"; };
 		0F0F33092C47AE3200BB0D05 /* BitcoinPriceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BitcoinPriceService.swift; sourceTree = "<group>"; };
+		0F0F33202C47C58900BB0D05 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		0F0F33222C47CBC500BB0D05 /* SetAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetAlertView.swift; sourceTree = "<group>"; };
+		0F0F33242C47CDE800BB0D05 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 		0F1245552C4619490012E2D0 /* CoinAlert.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoinAlert.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0F1245582C4619490012E2D0 /* CoinAlertApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoinAlertApp.swift; sourceTree = "<group>"; };
 		0F12455A2C4619490012E2D0 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -47,7 +52,6 @@
 		0F1245712C4634020012E2D0 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		0F1245732C4635E40012E2D0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0F1245752C4637940012E2D0 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
-		0F1245772C46379D0012E2D0 /* AlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +102,7 @@
 				0F12455A2C4619490012E2D0 /* ContentView.swift */,
 				0F12455C2C46194A0012E2D0 /* Assets.xcassets */,
 				0F12455E2C46194A0012E2D0 /* Preview Content */,
+				0F0F33202C47C58900BB0D05 /* AppDelegate.swift */,
 			);
 			path = CoinAlert;
 			sourceTree = "<group>";
@@ -118,7 +123,8 @@
 				0F1245712C4634020012E2D0 /* MainTabView.swift */,
 				0F1245732C4635E40012E2D0 /* SettingsView.swift */,
 				0F1245752C4637940012E2D0 /* CommunityView.swift */,
-				0F1245772C46379D0012E2D0 /* AlertView.swift */,
+				0F0F33222C47CBC500BB0D05 /* SetAlertView.swift */,
+				0F0F33242C47CDE800BB0D05 /* AlertView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -233,13 +239,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F0F33212C47C58900BB0D05 /* AppDelegate.swift in Sources */,
 				0F1245762C4637940012E2D0 /* CommunityView.swift in Sources */,
+				0F0F33232C47CBC600BB0D05 /* SetAlertView.swift in Sources */,
 				0F0F330A2C47AE3200BB0D05 /* BitcoinPriceService.swift in Sources */,
 				0F12455B2C4619490012E2D0 /* ContentView.swift in Sources */,
 				0F12456C2C462F660012E2D0 /* MainView.swift in Sources */,
 				0F1245592C4619490012E2D0 /* CoinAlertApp.swift in Sources */,
 				0F1245742C4635E40012E2D0 /* SettingsView.swift in Sources */,
-				0F1245782C46379D0012E2D0 /* AlertView.swift in Sources */,
+				0F0F33252C47CDE800BB0D05 /* AlertView.swift in Sources */,
 				0F0F33042C47AB6F00BB0D05 /* PriceData.swift in Sources */,
 				0F0F33062C47AB7F00BB0D05 /* BinancePrice.swift in Sources */,
 				0F12456A2C462F230012E2D0 /* SplashView.swift in Sources */,
