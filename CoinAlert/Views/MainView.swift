@@ -23,20 +23,26 @@ struct MainView: View {
                 if isLoading {
                     ProgressView("Loading...")
                         .onAppear {
-                            fetchBitcoinPrice()
+                            startTimer()
                         }
                 } else if let bitcoinPrice = bitcoinPrice {
                     VStack {
                         Text("Bitcoin Price")
                             .font(.largeTitle)
-                        Text("$\(bitcoinPrice.price, specifier: "%.0f")")
+                        Text("$\(bitcoinPrice.price, specifier: "%.2f")")
                             .font(.title)
                             .foregroundColor(.green)
                         
                         NavigationLink(destination: SetAlertView(onSave: { price in
                             alertPrice = price
                             if notificationPermissionGranted {
-                                scheduleNotification(for: price)
+                                // 조건 체크
+                                if bitcoinPrice.price >= alertPrice! {
+                                    scheduleNotification(for: price)
+                                } else {
+                                    alertMessage = "현재 비트코인 가격이 설정한 가격보다 낮습니다."
+                                    showAlert = true
+                                }
                             } else {
                                 requestNotificationPermission()
                             }
@@ -86,6 +92,12 @@ struct MainView: View {
         }
     }
     
+    func startTimer() {
+        Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            fetchBitcoinPrice()
+        }
+    }
+
     func checkNotificationPermission() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
@@ -142,6 +154,3 @@ struct MainView_Previews: PreviewProvider {
         MainView()
     }
 }
-
-
-
