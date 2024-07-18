@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SetAlertView: View {
     @State private var alertPrice: String = ""
-    @State private var bitcoinPrice: PriceData?
+    @State private var bitcoinPrice: Double?
     @State private var isLoading = true
     @State private var errorMessage: String?
     
@@ -27,7 +27,7 @@ struct SetAlertView: View {
                 VStack {
                     Text("Bitcoin Price")
                         .font(.largeTitle)
-                    Text("$\(bitcoinPrice.price, specifier: "%.0f")")
+                    Text("$\(bitcoinPrice, specifier: "%.0f")")
                         .font(.title)
                         .foregroundColor(.green)
                     
@@ -66,7 +66,7 @@ struct SetAlertView: View {
                 isLoading = false
                 switch result {
                 case .success(let price):
-                    bitcoinPrice = price
+                    bitcoinPrice = price.price
                 case .failure(let error):
                     errorMessage = error.localizedDescription
                 }
@@ -80,4 +80,7 @@ struct SetAlertView_Previews: PreviewProvider {
         SetAlertView(onSave: { _ in })
     }
 }
+
+
+
 
