@@ -80,7 +80,3 @@ struct SetAlertView_Previews: PreviewProvider {
         SetAlertView(onSave: { _ in })
     }
 }
-
-
-
-

@@ -17,3 +17,5 @@ struct CoinAlertApp: App {
         }
     }
 }
+
+

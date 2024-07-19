@@ -29,23 +29,12 @@ struct MainView: View {
                     VStack {
                         Text("Bitcoin Price")
                             .font(.largeTitle)
-                        Text("$\(bitcoinPrice.price, specifier: "%.2f")")
+                        Text("$\(bitcoinPrice.price, specifier: "%.0f")")
                             .font(.title)
                             .foregroundColor(.green)
                         
                         NavigationLink(destination: SetAlertView(onSave: { price in
                             alertPrice = price
-                            if notificationPermissionGranted {
-                                // 조건 체크
-                                if bitcoinPrice.price >= alertPrice! {
-                                    scheduleNotification(for: price)
-                                } else {
-                                    alertMessage = "현재 비트코인 가격이 설정한 가격보다 낮습니다."
-                                    showAlert = true
-                                }
-                            } else {
-                                requestNotificationPermission()
-                            }
                         })) {
                             Text("알림 설정")
                                 .font(.headline)
@@ -85,6 +74,7 @@ struct MainView: View {
                 switch result {
                 case .success(let price):
                     bitcoinPrice = price
+                    checkPriceAlert()
                 case .failure(let error):
                     errorMessage = error.localizedDescription
                 }
@@ -117,9 +107,7 @@ struct MainView: View {
                 } else {
                     notificationPermissionGranted = granted
                     if granted {
-                        if let price = alertPrice {
-                            scheduleNotification(for: price)
-                        }
+                        checkPriceAlert()
                     } else {
                         alertMessage = "알림을 설정하려면 알림 권한이 필요합니다. 설정에서 권한을 허용해주세요."
                         showAlert = true
@@ -129,15 +117,23 @@ struct MainView: View {
         }
     }
     
-    func scheduleNotification(for alertPrice: Double) {
+    //여긴 나중에 수정
+    func checkPriceAlert() {
+        if let alertPrice = alertPrice, let bitcoinPrice = bitcoinPrice {
+            if bitcoinPrice.price >= alertPrice {
+                scheduleNotification(for: bitcoinPrice.price)
+                self.alertPrice = nil // 알림이 보내진 후 alertPrice 초기화
+            }
+        }
+    }
+    
+    func scheduleNotification(for currentPrice: Double) {
         let content = UNMutableNotificationContent()
         content.title = "비트코인 가격 알림"
-        content.body = "설정된 가격 \(String(format: "%.0f", alertPrice))에 도달했습니다."
+        content.body = "현재 비트코인 가격은 \(String(format: "%.0f", currentPrice))입니다."
         content.sound = .default
         
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
         
         UNUserNotificationCenter.current().add(request) { error in
             if let error = error {

@@ -6,13 +6,18 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AlertView: View {
+
+
     var body: some View {
         Text("알림")
     }
 }
 
-#Preview {
-    AlertView()
+struct AlertView_Previews: PreviewProvider {
+    static var previews: some View {
+        AlertView()
+    }
 }

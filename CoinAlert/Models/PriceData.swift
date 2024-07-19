@@ -5,6 +5,7 @@
 //  Created by 백지훈 on 7/17/24.
 //
 
+
 import Foundation
 
 struct PriceData: Identifiable {
