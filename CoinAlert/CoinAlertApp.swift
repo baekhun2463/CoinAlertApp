@@ -18,9 +18,9 @@ struct CoinAlertApp: App {
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
-        // Remove existing persistent store file if exists
-        removePersistentStore()
-        
+//        // Remove existing persistent store file if exists
+//        removePersistentStore()
+//        
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
@@ -36,15 +36,15 @@ struct CoinAlertApp: App {
     }
 }
 
-func removePersistentStore() {
-    let storeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("default.store")
-
-    if let storeURL = storeURL {
-        do {
-            try FileManager.default.removeItem(at: storeURL)
-            print("Persistent store deleted.")
-        } catch {
-            print("Failed to delete persistent store: \(error)")
-        }
-    }
-}
+//func removePersistentStore() {
+//    let storeURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first?.appendingPathComponent("default.store")
+//
+//    if let storeURL = storeURL {
+//        do {
+//            try FileManager.default.removeItem(at: storeURL)
+//            print("Persistent store deleted.")
+//        } catch {
+//            print("Failed to delete persistent store: \(error)")
+//        }
+//    }
+//}

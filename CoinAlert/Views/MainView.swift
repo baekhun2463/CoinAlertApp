@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UserNotifications
+import SwiftData
 
 struct MainView: View {
     @State private var bitcoinPrice: PriceData?
@@ -16,7 +17,11 @@ struct MainView: View {
     @State private var notificationPermissionGranted = false
     @State private var showAlert = false
     @State private var alertMessage = ""
+    
+    @Environment(\.modelContext) var modelContext
 
+    @Query var priceDataList: [PriceData]
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -119,13 +124,20 @@ struct MainView: View {
     
     //여긴 나중에 수정
     func checkPriceAlert() {
-        if let alertPrice = alertPrice, let bitcoinPrice = bitcoinPrice {
-            if bitcoinPrice.price >= alertPrice {
-                scheduleNotification(for: bitcoinPrice.price)
-                self.alertPrice = nil // 알림이 보내진 후 alertPrice 초기화
+            if let bitcoinPrice = bitcoinPrice {
+                for alert in priceDataList {
+                    if bitcoinPrice.price >= alert.alertPrice && !alert.isTriggered {
+                        scheduleNotification(for: bitcoinPrice.price)
+                        alert.isTriggered = true
+                        do {
+                            try modelContext.save()
+                        } catch {
+                            print("Failed to save alert: \(error.localizedDescription)")
+                        }
+                    }
+                }
             }
         }
-    }
     
     func scheduleNotification(for currentPrice: Double) {
         let content = UNMutableNotificationContent()

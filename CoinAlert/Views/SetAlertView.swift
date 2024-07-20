@@ -41,7 +41,7 @@ struct SetAlertView: View {
                         if let price = Double(alertPrice) {
                             onSave(price)
                             presentationMode.wrappedValue.dismiss()
-                            let newAlert = PriceData(price: price, date: Date())
+                            let newAlert = PriceData(price: bitcoinPrice, date: Date(), alertPrice: price)
                             modelContext.insert(newAlert)
                         }
                     }) {

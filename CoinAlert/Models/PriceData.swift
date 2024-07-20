@@ -13,10 +13,14 @@ final class PriceData {
     @Attribute(.unique) var id: UUID
     @Attribute var price: Double
     @Attribute var date: Date
+    @Attribute var isTriggered: Bool
+    @Attribute var alertPrice: Double
     
-    init(price: Double, date: Date) {
+    init(price: Double, date: Date, isTriggered:Bool = false, alertPrice: Double = 0.0) {
         self.id = UUID()
         self.price = price
         self.date = date
+        self.isTriggered = isTriggered
+        self.alertPrice = alertPrice
     }
 }
