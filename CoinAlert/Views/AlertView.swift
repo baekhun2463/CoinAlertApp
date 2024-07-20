@@ -10,9 +10,13 @@ import SwiftData
 
 struct AlertView: View {
 
+    @Query var priceDataList: [PriceData]
 
     var body: some View {
-        Text("알림")
+        ForEach(priceDataList){ priceData in
+            Text("\(priceData.date, format: Date.FormatStyle(date: .numeric, time: .standard))")
+            Text("\(priceData.price)")
+        }
     }
 }
 

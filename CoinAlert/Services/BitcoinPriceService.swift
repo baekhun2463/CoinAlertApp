@@ -28,7 +28,7 @@ class BitcoinPriceService {
                     completion(.failure(NSError(domain: "유효하지 않은 가격 데이터", code: -1, userInfo: nil)))
                     return
                 }
-                let priceData = PriceData(date: Date(), price: price)
+                let priceData = PriceData(price: price ,date: Date())
                 completion(.success(priceData))
             } catch {
                 completion(.failure(error))

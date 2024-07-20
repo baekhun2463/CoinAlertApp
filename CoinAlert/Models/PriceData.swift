@@ -7,9 +7,16 @@
 
 
 import Foundation
+import SwiftData
 
-struct PriceData: Identifiable {
-    let id = UUID()
-    let date: Date
-    let price: Double
+@Model
+class PriceData {
+    @Attribute(.unique) var id = UUID()
+    var price: Double
+    var date: Date
+    
+    init(price: Double, date: Date) {
+        self.price = price
+        self.date = date
+    }
 }
