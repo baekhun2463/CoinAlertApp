@@ -44,12 +44,7 @@ struct EditProfileView: View {
                 ImagePicker(image: $profileImage)
             }
             
-            TextField("사용자 이름", text: $nickName)
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(8)
-            
-            TextField("이메일", text: $email)
+            TextField("닉네임", text: $nickName)
                 .padding()
                 .background(Color(.systemGray6))
                 .cornerRadius(8)

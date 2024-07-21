@@ -23,7 +23,6 @@ struct LogoutView: View {
             
             Button(action: {
                 // 로그아웃 액션
-                @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
             }) {
                 Text("로그아웃")
                     .frame(maxWidth: .infinity)

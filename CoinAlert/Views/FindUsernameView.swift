@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// 여긴 일단 보류
 //1. 이메일 입력을 받고 유효한 이메일이면 아이디 리턴 else 알맞는 메시지 리턴
 
 struct FindUsernameView: View {

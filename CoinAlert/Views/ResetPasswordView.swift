@@ -19,17 +19,6 @@ struct ResetPasswordView: View {
                 Text("비밀번호 재설정")
                     .font(.largeTitle)
                     .bold()
-                
-                VStack(alignment: .leading, spacing: 10) {
-                    Text("이메일")
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    
-                    TextField("이메일을 입력해주세요", text: $email)
-                        .padding()
-                        .background(Color(.systemGray6))
-                        .cornerRadius(5)
-                }
           
                 VStack(alignment: .leading, spacing: 10) {
                     Text("비밀번호")
