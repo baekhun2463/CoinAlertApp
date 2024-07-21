@@ -1,6 +1,9 @@
 import SwiftUI
 
 struct MainTabView: View {
+        
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+
     var body: some View {
         TabView {
             MainView()

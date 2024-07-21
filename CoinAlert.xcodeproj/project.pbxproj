@@ -32,6 +32,14 @@
 		0F1245722C4634020012E2D0 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245712C4634020012E2D0 /* MainTabView.swift */; };
 		0F1245742C4635E40012E2D0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245732C4635E40012E2D0 /* SettingsView.swift */; };
 		0F1245762C4637940012E2D0 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245752C4637940012E2D0 /* CommunityView.swift */; };
+		0F349B912C4CC5CC001AC264 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B902C4CC5CC001AC264 /* LoginView.swift */; };
+		0F349B932C4CCAB9001AC264 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B922C4CCAB9001AC264 /* SignUpView.swift */; };
+		0F349B952C4CCADA001AC264 /* FindUsernameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B942C4CCADA001AC264 /* FindUsernameView.swift */; };
+		0F349B972C4CCAFD001AC264 /* ResetPasswordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B962C4CCAFD001AC264 /* ResetPasswordView.swift */; };
+		0F349B992C4CCE8F001AC264 /* EditProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B982C4CCE8F001AC264 /* EditProfileView.swift */; };
+		0F349B9B2C4CCEBC001AC264 /* NotificationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B9A2C4CCEBC001AC264 /* NotificationSettingsView.swift */; };
+		0F349B9D2C4CCEDF001AC264 /* DeleteAccountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B9C2C4CCEDF001AC264 /* DeleteAccountView.swift */; };
+		0F349B9F2C4CCF00001AC264 /* LogoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B9E2C4CCF00001AC264 /* LogoutView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +60,14 @@
 		0F1245712C4634020012E2D0 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		0F1245732C4635E40012E2D0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0F1245752C4637940012E2D0 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
+		0F349B902C4CC5CC001AC264 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		0F349B922C4CCAB9001AC264 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
+		0F349B942C4CCADA001AC264 /* FindUsernameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindUsernameView.swift; sourceTree = "<group>"; };
+		0F349B962C4CCAFD001AC264 /* ResetPasswordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetPasswordView.swift; sourceTree = "<group>"; };
+		0F349B982C4CCE8F001AC264 /* EditProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileView.swift; sourceTree = "<group>"; };
+		0F349B9A2C4CCEBC001AC264 /* NotificationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationSettingsView.swift; sourceTree = "<group>"; };
+		0F349B9C2C4CCEDF001AC264 /* DeleteAccountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeleteAccountView.swift; sourceTree = "<group>"; };
+		0F349B9E2C4CCF00001AC264 /* LogoutView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoutView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +141,14 @@
 				0F1245752C4637940012E2D0 /* CommunityView.swift */,
 				0F0F33222C47CBC500BB0D05 /* SetAlertView.swift */,
 				0F0F33242C47CDE800BB0D05 /* AlertView.swift */,
+				0F349B902C4CC5CC001AC264 /* LoginView.swift */,
+				0F349B922C4CCAB9001AC264 /* SignUpView.swift */,
+				0F349B942C4CCADA001AC264 /* FindUsernameView.swift */,
+				0F349B962C4CCAFD001AC264 /* ResetPasswordView.swift */,
+				0F349B982C4CCE8F001AC264 /* EditProfileView.swift */,
+				0F349B9A2C4CCEBC001AC264 /* NotificationSettingsView.swift */,
+				0F349B9C2C4CCEDF001AC264 /* DeleteAccountView.swift */,
+				0F349B9E2C4CCF00001AC264 /* LogoutView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -239,7 +263,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0F349B992C4CCE8F001AC264 /* EditProfileView.swift in Sources */,
+				0F349B9D2C4CCEDF001AC264 /* DeleteAccountView.swift in Sources */,
 				0F0F33212C47C58900BB0D05 /* AppDelegate.swift in Sources */,
+				0F349B932C4CCAB9001AC264 /* SignUpView.swift in Sources */,
 				0F1245762C4637940012E2D0 /* CommunityView.swift in Sources */,
 				0F0F33232C47CBC600BB0D05 /* SetAlertView.swift in Sources */,
 				0F0F330A2C47AE3200BB0D05 /* BitcoinPriceService.swift in Sources */,
@@ -247,11 +274,16 @@
 				0F12456C2C462F660012E2D0 /* MainView.swift in Sources */,
 				0F1245592C4619490012E2D0 /* CoinAlertApp.swift in Sources */,
 				0F1245742C4635E40012E2D0 /* SettingsView.swift in Sources */,
+				0F349B912C4CC5CC001AC264 /* LoginView.swift in Sources */,
+				0F349B9B2C4CCEBC001AC264 /* NotificationSettingsView.swift in Sources */,
 				0F0F33252C47CDE800BB0D05 /* AlertView.swift in Sources */,
 				0F0F33042C47AB6F00BB0D05 /* PriceData.swift in Sources */,
 				0F0F33062C47AB7F00BB0D05 /* BinancePrice.swift in Sources */,
+				0F349B952C4CCADA001AC264 /* FindUsernameView.swift in Sources */,
 				0F12456A2C462F230012E2D0 /* SplashView.swift in Sources */,
 				0F1245722C4634020012E2D0 /* MainTabView.swift in Sources */,
+				0F349B9F2C4CCF00001AC264 /* LogoutView.swift in Sources */,
+				0F349B972C4CCAFD001AC264 /* ResetPasswordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
