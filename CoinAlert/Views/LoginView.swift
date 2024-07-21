@@ -11,9 +11,10 @@ struct LoginView: View {
     @State private var username: String = ""
     @State private var password: String = ""
     @State private var showPassword: Bool = false
+    @State private var isLoggedIn: Bool = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
                 Text("로그인")
                     .font(.largeTitle)
@@ -55,7 +56,8 @@ struct LoginView: View {
                 
                 Button(action: {
                     // 로그인 액션
-                    @AppStorage("isLoggedIn") var isLoggedIn:Bool = true
+                    // 로그인 성공 시 isLoggedIn를 true로 설정
+                    isLoggedIn = true
                 }) {
                     Text("로그인")
                         .frame(maxWidth: .infinity)
@@ -81,7 +83,8 @@ struct LoginView: View {
                     Spacer()
                 }
                 .padding(.vertical)
-                HStack{
+                
+                HStack {
                     Text("계정이 없으신가요?")
                         .foregroundColor(.gray)
                     NavigationLink(destination: SignUpView()) {
@@ -94,6 +97,9 @@ struct LoginView: View {
             .padding()
             .navigationBarTitle("", displayMode: .inline)
             .navigationBarHidden(true)
+            .navigationDestination(isPresented: $isLoggedIn) {
+                MainTabView()
+            }
         }
     }
 }
@@ -103,4 +109,3 @@ struct LoginView_Previews: PreviewProvider {
         LoginView()
     }
 }
-
