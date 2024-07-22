@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ContentView: View {
     
+    @AppStorage("authToken") var authToken: String?
+
     @State private var showMainView = false
     
     func loadData() {
@@ -29,7 +31,11 @@ struct ContentView: View {
     var body: some View {
         Group {
             if showMainView {
-                MainTabView()
+                if let token = authToken, !token.isEmpty {
+                    MainTabView()
+                }else {
+                    LoginView()
+                }
             } else {
                 SplashView()
                     .onAppear {

@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 import SwiftJWT
 import Security
-
+import Combine
 
 struct LoginView: View {
     @State private var email: String = ""
@@ -150,7 +150,6 @@ struct LoginView: View {
             loginFailed = true
         }
     }
-
     
     func generateJWT(for user: User) -> String? {
         let expirationDate = Date(timeIntervalSinceNow: 72000)
@@ -174,7 +173,7 @@ struct LoginView: View {
     }
     
     func getSecretKey() -> String? {
-        return Bundle.main.object(forInfoDictionaryKey: "SECRET_KEY") as? String
+        return getKeychainItem(forKey: "SECRET_KEY")
     }
     
     func saveJWT(_ jwt: String, forKey key: String) -> Bool {
@@ -210,6 +209,50 @@ struct LoginView: View {
         }
         return jwt
     }
+    
+    func saveKeychainItem(_ value: String, forKey key: String) -> Bool {
+        guard let data = value.data(using: .utf8) else { return false }
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        
+        // 기존 항목이 있는 경우 삭제
+        SecItemDelete(query as CFDictionary)
+        
+        let status = SecItemAdd(query as CFDictionary, nil)
+        if status == errSecSuccess {
+            print("키체인 항목 저장 성공")
+        } else {
+            print("키체인 항목 저장 실패: \(status)")
+        }
+        return status == errSecSuccess
+    }
+    
+    func getKeychainItem(forKey key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        
+        if status == errSecSuccess {
+            print("키체인 항목 가져오기 성공")
+            if let data = item as? Data, let value = String(data: data, encoding: .utf8) {
+                return value
+            }
+        } else {
+            print("키체인 항목 가져오기 실패: \(status)")
+        }
+        return nil
+    }
 }
 
 struct MyClaims: Claims {
@@ -223,3 +266,4 @@ struct LoginView_Previews: PreviewProvider {
         LoginView()
     }
 }
+

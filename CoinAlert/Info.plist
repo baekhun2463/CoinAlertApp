@@ -13,7 +13,5 @@
 	<true/>
 	<key>UISupportsDocumentBrowser</key>
 	<true/>
-	<key>SECRET_KEY</key>
-	<string>qorwlgnszhdlsdkffjxm</string>
 </dict>
 </plist>
