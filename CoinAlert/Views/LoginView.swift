@@ -136,7 +136,8 @@ struct LoginView: View {
                     if let token = generateJWT(for: user) {
                         self.jwt = token
                         print("JWT: \(token)")
-                        saveJWT(token, forKey: "userJWT")
+                        let saveResult = saveJWT(token, forKey: "userJWT")
+                        print("JWT save result: \(saveResult)")
                         isLoggedIn = true
                         loginFailed = false
                     } else {
@@ -149,9 +150,10 @@ struct LoginView: View {
             loginFailed = true
         }
     }
+
     
     func generateJWT(for user: User) -> String? {
-        let expirationDate = Date(timeIntervalSinceNow: 3600) // 1시간 후 만료
+        let expirationDate = Date(timeIntervalSinceNow: 72000)
         let claims = MyClaims(sub: user.id.uuidString, email: user.email, exp: expirationDate)
         var jwt = JWT(claims: claims)
         
@@ -175,7 +177,6 @@ struct LoginView: View {
         return Bundle.main.object(forInfoDictionaryKey: "SECRET_KEY") as? String
     }
     
-    @discardableResult
     func saveJWT(_ jwt: String, forKey key: String) -> Bool {
         guard let data = jwt.data(using: .utf8) else { return false }
         

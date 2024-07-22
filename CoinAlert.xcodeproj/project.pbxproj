@@ -7,18 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0F0F32F12C4788BA00BB0D05 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F32F02C4788BA00BB0D05 /* DGCharts */; };
-		0F0F32F32C4788BA00BB0D05 /* DGChartsDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F32F22C4788BA00BB0D05 /* DGChartsDynamic */; };
 		0F0F33042C47AB6F00BB0D05 /* PriceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33032C47AB6F00BB0D05 /* PriceData.swift */; };
 		0F0F33062C47AB7F00BB0D05 /* BinancePrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33052C47AB7F00BB0D05 /* BinancePrice.swift */; };
 		0F0F330A2C47AE3200BB0D05 /* BitcoinPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33092C47AE3200BB0D05 /* BitcoinPriceService.swift */; };
-		0F0F33122C47B08700BB0D05 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F33112C47B08700BB0D05 /* DGCharts */; };
-		0F0F33142C47B08700BB0D05 /* DGChartsDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F33132C47B08700BB0D05 /* DGChartsDynamic */; };
-		0F0F33162C47B14400BB0D05 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F33152C47B14400BB0D05 /* DGCharts */; };
-		0F0F33182C47B14400BB0D05 /* DGChartsDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F33172C47B14400BB0D05 /* DGChartsDynamic */; };
-		0F0F331A2C47B15200BB0D05 /* DGCharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F33192C47B15200BB0D05 /* DGCharts */; };
-		0F0F331C2C47B15200BB0D05 /* DGChartsDynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F331B2C47B15200BB0D05 /* DGChartsDynamic */; };
-		0F0F331F2C47B67800BB0D05 /* SwiftUICharts in Frameworks */ = {isa = PBXBuildFile; productRef = 0F0F331E2C47B67800BB0D05 /* SwiftUICharts */; };
 		0F0F33212C47C58900BB0D05 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33202C47C58900BB0D05 /* AppDelegate.swift */; };
 		0F0F33232C47CBC600BB0D05 /* SetAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33222C47CBC500BB0D05 /* SetAlertView.swift */; };
 		0F0F33252C47CDE800BB0D05 /* AlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F0F33242C47CDE800BB0D05 /* AlertView.swift */; };
@@ -43,6 +34,7 @@
 		0F349BA22C4CF092001AC264 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA12C4CF092001AC264 /* User.swift */; };
 		0F349BA82C4CFF35001AC264 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA72C4CFF35001AC264 /* Post.swift */; };
 		0F349BAA2C4CFF8D001AC264 /* NewPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA92C4CFF8D001AC264 /* NewPostView.swift */; };
+		0FE235F62C4E2E77004ECE06 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 0FE235F52C4E2E77004ECE06 /* SwiftJWT */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -82,15 +74,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0F0F331F2C47B67800BB0D05 /* SwiftUICharts in Frameworks */,
-				0F0F33142C47B08700BB0D05 /* DGChartsDynamic in Frameworks */,
-				0F0F32F32C4788BA00BB0D05 /* DGChartsDynamic in Frameworks */,
-				0F0F33162C47B14400BB0D05 /* DGCharts in Frameworks */,
-				0F0F33122C47B08700BB0D05 /* DGCharts in Frameworks */,
-				0F0F331C2C47B15200BB0D05 /* DGChartsDynamic in Frameworks */,
-				0F0F33182C47B14400BB0D05 /* DGChartsDynamic in Frameworks */,
-				0F0F331A2C47B15200BB0D05 /* DGCharts in Frameworks */,
-				0F0F32F12C4788BA00BB0D05 /* DGCharts in Frameworks */,
+				0FE235F62C4E2E77004ECE06 /* SwiftJWT in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,15 +189,7 @@
 			);
 			name = CoinAlert;
 			packageProductDependencies = (
-				0F0F32F02C4788BA00BB0D05 /* DGCharts */,
-				0F0F32F22C4788BA00BB0D05 /* DGChartsDynamic */,
-				0F0F33112C47B08700BB0D05 /* DGCharts */,
-				0F0F33132C47B08700BB0D05 /* DGChartsDynamic */,
-				0F0F33152C47B14400BB0D05 /* DGCharts */,
-				0F0F33172C47B14400BB0D05 /* DGChartsDynamic */,
-				0F0F33192C47B15200BB0D05 /* DGCharts */,
-				0F0F331B2C47B15200BB0D05 /* DGChartsDynamic */,
-				0F0F331E2C47B67800BB0D05 /* SwiftUICharts */,
+				0FE235F52C4E2E77004ECE06 /* SwiftJWT */,
 			);
 			productName = CoinAlert;
 			productReference = 0F1245552C4619490012E2D0 /* CoinAlert.app */;
@@ -244,8 +220,7 @@
 			);
 			mainGroup = 0F12454C2C4619490012E2D0;
 			packageReferences = (
-				0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */,
-				0F0F331D2C47B67800BB0D05 /* XCRemoteSwiftPackageReference "SwiftUICharts" */,
+				0FE235F42C4E2E76004ECE06 /* XCRemoteSwiftPackageReference "Swift-JWT" */,
 			);
 			productRefGroup = 0F1245562C4619490012E2D0 /* Products */;
 			projectDirPath = "";
@@ -511,69 +486,21 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */ = {
+		0FE235F42C4E2E76004ECE06 /* XCRemoteSwiftPackageReference "Swift-JWT" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/danielgindi/Charts";
+			repositoryURL = "https://github.com/Kitura/Swift-JWT.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 5.1.0;
-			};
-		};
-		0F0F331D2C47B67800BB0D05 /* XCRemoteSwiftPackageReference "SwiftUICharts" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/willdale/SwiftUICharts";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.10.2;
+				minimumVersion = 4.0.1;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		0F0F32F02C4788BA00BB0D05 /* DGCharts */ = {
+		0FE235F52C4E2E77004ECE06 /* SwiftJWT */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGCharts;
-		};
-		0F0F32F22C4788BA00BB0D05 /* DGChartsDynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGChartsDynamic;
-		};
-		0F0F33112C47B08700BB0D05 /* DGCharts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGCharts;
-		};
-		0F0F33132C47B08700BB0D05 /* DGChartsDynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGChartsDynamic;
-		};
-		0F0F33152C47B14400BB0D05 /* DGCharts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGCharts;
-		};
-		0F0F33172C47B14400BB0D05 /* DGChartsDynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGChartsDynamic;
-		};
-		0F0F33192C47B15200BB0D05 /* DGCharts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGCharts;
-		};
-		0F0F331B2C47B15200BB0D05 /* DGChartsDynamic */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F32EF2C4788BA00BB0D05 /* XCRemoteSwiftPackageReference "Charts" */;
-			productName = DGChartsDynamic;
-		};
-		0F0F331E2C47B67800BB0D05 /* SwiftUICharts */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 0F0F331D2C47B67800BB0D05 /* XCRemoteSwiftPackageReference "SwiftUICharts" */;
-			productName = SwiftUICharts;
+			package = 0FE235F42C4E2E76004ECE06 /* XCRemoteSwiftPackageReference "Swift-JWT" */;
+			productName = SwiftJWT;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

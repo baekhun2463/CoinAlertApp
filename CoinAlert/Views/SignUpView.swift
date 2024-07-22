@@ -105,12 +105,12 @@ struct SignUpView: View {
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
-                        .navigationDestination(isPresented: $signUpSuccessful) {
-                            LoginView()
-                        }
-
                 }
                 .padding(.top)
+                .navigationDestination(isPresented: $signUpSuccessful) {
+                    LoginView()
+                }
+
                 
                 Spacer()
             }
