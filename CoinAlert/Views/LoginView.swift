@@ -6,12 +6,20 @@
 //
 
 import SwiftUI
+import SwiftData
+import SwiftJWT
+import Security
+
 
 struct LoginView: View {
-    @State private var username: String = ""
+    @State private var email: String = ""
     @State private var password: String = ""
     @State private var showPassword: Bool = false
     @State private var isLoggedIn: Bool = false
+    @State private var loginFailed: Bool = false
+    @State private var jwt: String?
+    
+    @Environment(\.modelContext) private var modelContext: ModelContext
     
     var body: some View {
         NavigationStack {
@@ -25,7 +33,7 @@ struct LoginView: View {
                         .font(.headline)
                         .foregroundColor(.gray)
                     
-                    TextField("아이디를 입력해주세요", text: $username)
+                    TextField("아이디를 입력해주세요", text: $email)
                         .padding()
                         .background(Color(.systemGray6))
                         .cornerRadius(5)
@@ -54,10 +62,15 @@ struct LoginView: View {
                     .cornerRadius(5)
                 }
                 
+                if loginFailed {
+                    Text("로그인 실패. 아이디와 비밀번호를 확인해주세요.")
+                        .foregroundColor(.red)
+                        .font(.caption)
+                        .padding(.bottom)
+                }
+                
                 Button(action: {
-                    // 로그인 액션
-                    // 로그인 성공 시 isLoggedIn를 true로 설정
-                    isLoggedIn = true
+                    login()
                 }) {
                     Text("로그인")
                         .frame(maxWidth: .infinity)
@@ -100,8 +113,108 @@ struct LoginView: View {
             .navigationDestination(isPresented: $isLoggedIn) {
                 MainTabView()
             }
+            .onAppear {
+                if let token = getJWT(forKey: "userJWT") {
+                    print("키체인에서 가져온 JWT: \(token)")
+                } else {
+                    print("키체인에서 JWT를 가져오지 못했습니다.")
+                }
+            }
         }
     }
+    
+    func login() {
+        let predicate = #Predicate<User> { $0.email == email && $0.password == password }
+        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
+        
+        do {
+            let users = try modelContext.fetch(fetchDescriptor)
+            if users.isEmpty {
+                loginFailed = true
+            } else {
+                if let user = users.first {
+                    if let token = generateJWT(for: user) {
+                        self.jwt = token
+                        print("JWT: \(token)")
+                        saveJWT(token, forKey: "userJWT")
+                        isLoggedIn = true
+                        loginFailed = false
+                    } else {
+                        loginFailed = true
+                    }
+                }
+            }
+        } catch {
+            print("로그인 에러: \(error)")
+            loginFailed = true
+        }
+    }
+    
+    func generateJWT(for user: User) -> String? {
+        let expirationDate = Date(timeIntervalSinceNow: 3600) // 1시간 후 만료
+        let claims = MyClaims(sub: user.id.uuidString, email: user.email, exp: expirationDate)
+        var jwt = JWT(claims: claims)
+        
+        guard let key = getSecretKey() else {
+            print("비밀 키를 가져올 수 없습니다.")
+            return nil
+        }
+        
+        let signer = JWTSigner.hs256(key: Data(key.utf8))
+        
+        do {
+            let signedJWT = try jwt.sign(using: signer)
+            return signedJWT
+        } catch {
+            print("JWT 생성 에러: \(error)")
+            return nil
+        }
+    }
+    
+    func getSecretKey() -> String? {
+        return Bundle.main.object(forInfoDictionaryKey: "SECRET_KEY") as? String
+    }
+    
+    @discardableResult
+    func saveJWT(_ jwt: String, forKey key: String) -> Bool {
+        guard let data = jwt.data(using: .utf8) else { return false }
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
+        ]
+        
+        // 기존 항목이 있는 경우 삭제
+        SecItemDelete(query as CFDictionary)
+        
+        let status = SecItemAdd(query as CFDictionary, nil)
+        return status == errSecSuccess
+    }
+    
+    func getJWT(forKey key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        
+        guard status == errSecSuccess, let data = item as? Data, let jwt = String(data: data, encoding: .utf8) else {
+            return nil
+        }
+        return jwt
+    }
+}
+
+struct MyClaims: Claims {
+    var sub: String
+    var email: String
+    var exp: Date
 }
 
 struct LoginView_Previews: PreviewProvider {
