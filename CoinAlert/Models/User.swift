@@ -14,13 +14,15 @@ class User {
     @Attribute var nickName: String
     @Attribute var email: String
     @Attribute var password: String
+    @Attribute var token: String = ""
     
     @Relationship var priceData: [PriceData]?
     @Relationship var posts: [Post]?
     
-    init(nickName: String = "", email: String, password: String) {
+    init(nickName: String = "", email: String, password: String, token: String = "") {
         self.nickName = nickName
         self.email = email
         self.password = password
+        self.token = token
     }
 }

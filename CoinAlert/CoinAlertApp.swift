@@ -21,14 +21,8 @@ struct CoinAlertApp: App {
     var body: some Scene {
         WindowGroup {
             if let modelContainer = sharedModelContainer {
-                if !isLoggedIn {
-                    LoginView()
-                        .modelContainer(modelContainer)
-                } else {
-                    MainTabView()
-                        .modelContainer(modelContainer)
-
-                }
+                ContentView()
+                    .modelContainer(modelContainer)
             } else {
                 ErrorView(message: "모델 컨테이너를 생성할 수 없습니다. 앱을 다시 시작해 주세요.")
             }

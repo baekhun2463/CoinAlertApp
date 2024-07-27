@@ -23,6 +23,7 @@
 		0F1245722C4634020012E2D0 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245712C4634020012E2D0 /* MainTabView.swift */; };
 		0F1245742C4635E40012E2D0 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245732C4635E40012E2D0 /* SettingsView.swift */; };
 		0F1245762C4637940012E2D0 /* CommunityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1245752C4637940012E2D0 /* CommunityView.swift */; };
+		0F1ECA412C5531B900B2FDBA /* MyClaims.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1ECA402C5531B900B2FDBA /* MyClaims.swift */; };
 		0F349B912C4CC5CC001AC264 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B902C4CC5CC001AC264 /* LoginView.swift */; };
 		0F349B932C4CCAB9001AC264 /* SignUpView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B922C4CCAB9001AC264 /* SignUpView.swift */; };
 		0F349B952C4CCADA001AC264 /* FindUsernameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349B942C4CCADA001AC264 /* FindUsernameView.swift */; };
@@ -55,6 +56,7 @@
 		0F1245712C4634020012E2D0 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		0F1245732C4635E40012E2D0 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		0F1245752C4637940012E2D0 /* CommunityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityView.swift; sourceTree = "<group>"; };
+		0F1ECA402C5531B900B2FDBA /* MyClaims.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyClaims.swift; sourceTree = "<group>"; };
 		0F349B902C4CC5CC001AC264 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		0F349B922C4CCAB9001AC264 /* SignUpView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignUpView.swift; sourceTree = "<group>"; };
 		0F349B942C4CCADA001AC264 /* FindUsernameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FindUsernameView.swift; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				0F0F33052C47AB7F00BB0D05 /* BinancePrice.swift */,
 				0F349BA12C4CF092001AC264 /* User.swift */,
 				0F349BA72C4CFF35001AC264 /* Post.swift */,
+				0F1ECA402C5531B900B2FDBA /* MyClaims.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -270,6 +273,7 @@
 				0F0F33062C47AB7F00BB0D05 /* BinancePrice.swift in Sources */,
 				0F349B952C4CCADA001AC264 /* FindUsernameView.swift in Sources */,
 				0F12456A2C462F230012E2D0 /* SplashView.swift in Sources */,
+				0F1ECA412C5531B900B2FDBA /* MyClaims.swift in Sources */,
 				0F1245722C4634020012E2D0 /* MainTabView.swift in Sources */,
 				0F349B9F2C4CCF00001AC264 /* LogoutView.swift in Sources */,
 				0F349B972C4CCAFD001AC264 /* ResetPasswordView.swift in Sources */,
