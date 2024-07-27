@@ -12,10 +12,11 @@ import Security
 import Combine
 
 struct LoginView: View {
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var showPassword: Bool = false
-    @State private var isLoggedIn: Bool = false
     @State private var loginFailed: Bool = false
     @State private var jwt: String?
     

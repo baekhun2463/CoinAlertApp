@@ -12,6 +12,8 @@ import SwiftData
 struct CoinAlertApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+
     var sharedModelContainer: ModelContainer? {
         return createModelContainer()
     }
@@ -19,8 +21,14 @@ struct CoinAlertApp: App {
     var body: some Scene {
         WindowGroup {
             if let modelContainer = sharedModelContainer {
-                LoginView()
-                    .modelContainer(modelContainer)
+                if !isLoggedIn {
+                    LoginView()
+                        .modelContainer(modelContainer)
+                } else {
+                    MainTabView()
+                        .modelContainer(modelContainer)
+
+                }
             } else {
                 ErrorView(message: "모델 컨테이너를 생성할 수 없습니다. 앱을 다시 시작해 주세요.")
             }
