@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct LogoutView: View {
-
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    @AppStorage("authToken") var authToken: String?
+    
     var body: some View {
         VStack(spacing: 20) {
             Text("로그아웃")
@@ -22,7 +24,7 @@ struct LogoutView: View {
                 .padding()
             
             Button(action: {
-                // 로그아웃 액션
+                logout()
             }) {
                 Text("로그아웃")
                     .frame(maxWidth: .infinity)
@@ -36,6 +38,12 @@ struct LogoutView: View {
             Spacer()
         }
         .padding()
+    }
+    
+    func logout() {
+        // 로그아웃 로직: 토큰 삭제 및 로그인 상태 변경
+        authToken = nil
+        isLoggedIn = false
     }
 }
 

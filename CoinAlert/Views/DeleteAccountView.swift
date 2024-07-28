@@ -6,8 +6,13 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct DeleteAccountView: View {
+    @Environment(\.modelContext) private var modelContext: ModelContext
+    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
+    @AppStorage("authToken") var authToken: String?
+
     var body: some View {
         VStack(spacing: 20) {
             Text("계정 탈퇴")
@@ -21,7 +26,7 @@ struct DeleteAccountView: View {
                 .padding()
             
             Button(action: {
-                // 탈퇴 액션
+                deleteAccount()
             }) {
                 Text("계정 탈퇴")
                     .frame(maxWidth: .infinity)
@@ -36,6 +41,43 @@ struct DeleteAccountView: View {
         }
         .padding()
     }
+
+    func deleteAccount() {
+        guard let token = authToken else { return }
+
+        let predicate = #Predicate<User> { $0.token == token }
+        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
+        
+        do {
+            let users = try modelContext.fetch(fetchDescriptor)
+            if let user = users.first {
+                // 연결된 PriceData 및 Post 삭제
+                if !user.priceData.isEmpty {
+                    for priceData in user.priceData {
+                        modelContext.delete(priceData)
+                    }
+                }
+
+                if !user.posts.isEmpty {
+                    for post in user.posts {
+                        modelContext.delete(post)
+                    }
+                }
+
+                // User 삭제
+                modelContext.delete(user)
+                
+                // 저장
+                try modelContext.save()
+                
+                // 로그아웃
+                isLoggedIn = false
+                authToken = nil
+            }
+        } catch {
+            print("계정 삭제 에러: \(error)")
+        }
+    }
 }
 
 struct DeleteAccountView_Previews: PreviewProvider {
@@ -43,4 +85,3 @@ struct DeleteAccountView_Previews: PreviewProvider {
         DeleteAccountView()
     }
 }
-
