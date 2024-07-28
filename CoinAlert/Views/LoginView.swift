@@ -160,7 +160,7 @@ struct LoginView: View {
     
     // JWT 생성
     func generateJWT(for user: User) -> String? {
-        let expirationDate = Date(timeIntervalSinceNow: 60)
+        let expirationDate = Date(timeIntervalSinceNow: 5)
         let claims = MyClaims(sub: user.id.uuidString, email: user.email, exp: expirationDate)
         var jwt = JWT(claims: claims)
         

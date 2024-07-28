@@ -6,12 +6,15 @@
 //
 
 import SwiftUI
-
-// 여긴 일단 보류
-//1. 이메일 입력을 받고 유효한 이메일이면 아이디 리턴 else 알맞는 메시지 리턴
+import SwiftData
 
 struct FindUsernameView: View {
-    @State private var email: String = ""
+    @State private var nickName: String = ""
+    @State private var email: String? = nil
+    @State private var showMessage: Bool = false
+    @State private var message: String = ""
+    
+    @Environment(\.modelContext) private var modelContext: ModelContext
     
     var body: some View {
         NavigationView {
@@ -21,19 +24,18 @@ struct FindUsernameView: View {
                     .bold()
                 
                 VStack(alignment: .leading, spacing: 10) {
-                    Text("이메일")
+                    Text("닉네임")
                         .font(.headline)
                         .foregroundColor(.gray)
                     
-                    TextField("이메일을 입력해주세요", text: $email)
+                    TextField("닉네임을 입력해주세요", text: $nickName)
                         .padding()
                         .background(Color(.systemGray6))
                         .cornerRadius(5)
                 }
                 
                 Button(action: {
-                    // 아이디 찾기 액션
-            
+                    findEmailByNickName()
                 }) {
                     Text("아이디 찾기")
                         .frame(maxWidth: .infinity)
@@ -44,11 +46,50 @@ struct FindUsernameView: View {
                 }
                 .padding(.top)
                 
+                if showMessage {
+                    Text(message)
+                        .foregroundColor(email == nil ? .red : .green)
+                        .font(.caption)
+                        .padding(.top)
+                }
+                
                 Spacer()
             }
             .padding()
             .navigationBarTitle("", displayMode: .inline)
             .navigationBarHidden(true)
+        }
+    }
+    
+    func findEmailByNickName() {
+        let predicate = #Predicate<User> { $0.nickName == nickName }
+        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
+        
+        do {
+            let users = try modelContext.fetch(fetchDescriptor)
+            if let user = users.first {
+                email = user.email
+                message = "아이디: \(user.email)"
+                showMessage = true
+                
+                // 로그인 뷰로 이동
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                        if let window = windowScene.windows.first {
+                            window.rootViewController = UIHostingController(rootView: LoginView())
+                            window.makeKeyAndVisible()
+                        }
+                    }
+                }
+            } else {
+                email = nil
+                message = "잘못된 닉네임입니다."
+                showMessage = true
+            }
+        } catch {
+            email = nil
+            message = "아이디 찾기 에러: \(error)"
+            showMessage = true
         }
     }
 }
@@ -58,4 +99,3 @@ struct FindUsernameView_Previews: PreviewProvider {
         FindUsernameView()
     }
 }
-
