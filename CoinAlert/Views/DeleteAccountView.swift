@@ -12,7 +12,8 @@ struct DeleteAccountView: View {
     @Environment(\.modelContext) private var modelContext: ModelContext
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @AppStorage("authToken") var authToken: String?
-
+    @State private var navigateToLogin = false
+    
     var body: some View {
         VStack(spacing: 20) {
             Text("계정 탈퇴")
@@ -37,14 +38,18 @@ struct DeleteAccountView: View {
             }
             .padding(.top, 20)
             
+            .navigationDestination(isPresented: $navigateToLogin) {
+                LoginView()
+            }
+            
             Spacer()
         }
         .padding()
     }
-
+    
     func deleteAccount() {
         guard let token = authToken else { return }
-
+        
         let predicate = #Predicate<User> { $0.token == token }
         let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
         
@@ -57,13 +62,13 @@ struct DeleteAccountView: View {
                         modelContext.delete(priceData)
                     }
                 }
-
+                
                 if !user.posts.isEmpty {
                     for post in user.posts {
                         modelContext.delete(post)
                     }
                 }
-
+                
                 // User 삭제
                 modelContext.delete(user)
                 
