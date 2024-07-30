@@ -7,27 +7,34 @@
 
 import SwiftUI
 import SwiftData
+import AuthenticationServices
+
 
 @main
 struct CoinAlertApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
-
+    
     var sharedModelContainer: ModelContainer? {
         return createModelContainer()
     }
     
     var body: some Scene {
-        WindowGroup {
-            if let modelContainer = sharedModelContainer {
-                ContentView()
-                    .modelContainer(modelContainer)
-            } else {
-                ErrorView(message: "모델 컨테이너를 생성할 수 없습니다. 앱을 다시 시작해 주세요.")
+            WindowGroup {
+                if let modelContainer = sharedModelContainer {
+                    if !isLoggedIn {
+                        ContentView()
+                            .modelContainer(modelContainer)
+                    } else {
+                        MainTabView()
+                            .modelContainer(modelContainer)
+                    }
+                } else {
+                    ErrorView(message: "모델 컨테이너를 생성할 수 없습니다. 앱을 다시 시작해 주세요.")
+                }
             }
         }
-    }
     
     func createModelContainer() -> ModelContainer? {
         let schema = Schema([
@@ -36,7 +43,7 @@ struct CoinAlertApp: App {
             Post.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
- 
+        
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
@@ -48,7 +55,7 @@ struct CoinAlertApp: App {
 
 struct ErrorView: View {
     let message: String
-
+    
     var body: some View {
         VStack {
             Text("오류")

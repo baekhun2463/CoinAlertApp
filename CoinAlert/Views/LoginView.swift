@@ -10,18 +10,19 @@ import SwiftData
 import SwiftJWT
 import Security
 import Combine
+//import AuthenticationServices
 
 struct LoginView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @AppStorage("authToken") var authToken: String?
-    
+
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var showPassword: Bool = false
     @State private var loginFailed: Bool = false
     @State private var isLoading: Bool = false
     @Environment(\.modelContext) private var modelContext: ModelContext
-    
+
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
@@ -86,6 +87,25 @@ struct LoginView: View {
                     }
                     .padding(.top)
                 }
+                //애플 OAuth인데 13만원 때문에 보류
+//                SignInWithAppleButton(
+//                    .signIn,
+//                    onRequest: { request in
+//                        request.requestedScopes = [.fullName, .email]
+//                    },
+//                    onCompletion: { result in
+//                        switch result {
+//                        case .success(let authResults):
+//                            handleAuthorization(authResults)
+//                        case .failure(let error):
+//                            print("Authorization failed: \(error.localizedDescription)")
+//                            loginFailed = true
+//                        }
+//                    }
+//                )
+//                .signInWithAppleButtonStyle(.black)
+//                .frame(height: 50)
+//                .padding(.top)
                 
                 HStack {
                     Spacer()
@@ -160,7 +180,7 @@ struct LoginView: View {
     
     // JWT 생성
     func generateJWT(for user: User) -> String? {
-        let expirationDate = Date(timeIntervalSinceNow: 5)
+        let expirationDate = Date(timeIntervalSinceNow: 7200)
         let claims = MyClaims(sub: user.id.uuidString, email: user.email, exp: expirationDate)
         var jwt = JWT(claims: claims)
         
@@ -207,6 +227,50 @@ struct LoginView: View {
         }
         return status == errSecSuccess
     }
+    
+//    func handleAuthorization(_ authResults: ASAuthorization) {
+//        switch authResults.credential {
+//        case let appleIDCredential as ASAuthorizationAppleIDCredential:
+//            let userIdentifier = appleIDCredential.user
+//            let email = appleIDCredential.email ?? ""
+//            let fullName = appleIDCredential.fullName?.formatted() ?? ""
+//            let token = String(data: appleIDCredential.identityToken ?? Data(), encoding: .utf8) ?? ""
+//            
+//            // Handle the login with the userIdentifier, email, and token.
+//            // Save or validate the token as needed.
+//            if let _ = saveUser(email: email, fullName: fullName, token: token) {
+//                authToken = token
+//                isLoggedIn = true
+//                loginFailed = false
+//            } else {
+//                loginFailed = true
+//            }
+//        default:
+//            loginFailed = true
+//        }
+//    }
+//    
+//    func saveUser(email: String, fullName: String, token: String) -> User? {
+//        let predicate = #Predicate<User> { $0.email == email }
+//        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
+//        
+//        do {
+//            let users = try modelContext.fetch(fetchDescriptor)
+//            if let user = users.first {
+//                user.token = token
+//                try modelContext.save()
+//                return user
+//            } else {
+//                let newUser = User(nickName: fullName, email: email, password: "", token: token)
+//                modelContext.insert(newUser)
+//                try modelContext.save()
+//                return newUser
+//            }
+//        } catch {
+//            print("유저 저장 에러: \(error)")
+//            return nil
+//        }
+//    }
     
     // 키체인 항목 가져오기
     func getKeychainItem(forKey key: String) -> String? {

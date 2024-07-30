@@ -7,6 +7,7 @@
 
 import UIKit
 import UserNotifications
+import AuthenticationServices
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -21,6 +22,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         UNUserNotificationCenter.current().delegate = self
         return true
     }
+
+    // Apple OAuth 관련 메서드 추가
+    func application(_ application: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        return true
+    }
 }
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
@@ -32,5 +38,3 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         }
     }
 }
-
-

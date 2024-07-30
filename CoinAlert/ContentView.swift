@@ -1,6 +1,14 @@
+//
+//  ContentView.swift
+//  CoinAlert
+//
+//  Created by 백지훈 on 7/16/24.
+//
+
 import SwiftUI
 import SwiftJWT
 import Security
+import AuthenticationServices
 
 struct ContentView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
@@ -65,10 +73,9 @@ struct ContentView: View {
     }
 
     func refreshToken(token: String) -> String? {
-        // 기존 토큰에서 클레임을 추출
         do {
             let jwt = try JWT<MyClaims>(jwtString: token)
-            let newExpirationDate = Date(timeIntervalSinceNow: 10) // 2시간 연장
+            let newExpirationDate = Date(timeIntervalSinceNow: 7200) // 2시간 연장
             let claims = MyClaims(sub: jwt.claims.sub, email: jwt.claims.email, exp: newExpirationDate)
             var newJWT = JWT(claims: claims)
 
@@ -91,8 +98,7 @@ struct ContentView: View {
             return nil
         }
     }
-    
-    // 비밀 키 가져오기
+
     func getSecretKey() -> String? {
         return getKeychainItem(forKey: "SECRET_KEY")
     }
@@ -104,10 +110,10 @@ struct ContentView: View {
             kSecReturnData as String: true,
             kSecMatchLimit as String: kSecMatchLimitOne
         ]
-        
+
         var item: CFTypeRef?
         let status = SecItemCopyMatching(query as CFDictionary, &item)
-        
+
         if status == errSecSuccess {
             print("키체인 항목 가져오기 성공")
             if let data = item as? Data, let value = String(data: data, encoding: .utf8) {
@@ -134,17 +140,17 @@ struct ContentView: View {
 
     func saveKeychainItem(_ value: String, forKey key: String) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
-        
+
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrAccount as String: key,
             kSecValueData as String: data,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
-        
+
         // 기존 항목이 있는 경우 삭제
         SecItemDelete(query as CFDictionary)
-        
+
         let status = SecItemAdd(query as CFDictionary, nil)
         if status == errSecSuccess {
             print("키체인 항목 저장 성공")

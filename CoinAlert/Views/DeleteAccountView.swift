@@ -56,8 +56,8 @@ struct DeleteAccountView: View {
             let users = try modelContext.fetch(fetchDescriptor)
             if let user = users.first {
                 // 연결된 PriceData 및 Post 삭제
-                user.priceData.forEach { modelContext.delete($0) }
-                user.posts.forEach { modelContext.delete($0) }
+                user.priceData?.forEach { modelContext.delete($0) }
+                user.posts!.forEach { modelContext.delete($0) }
 
                 // User 삭제
                 modelContext.delete(user)
