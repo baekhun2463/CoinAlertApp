@@ -16,8 +16,8 @@ class User {
     @Attribute var password: String
     @Attribute var token: String = ""
     
-    @Relationship var priceData: [PriceData] = []
-    @Relationship var posts: [Post] = []
+    @Relationship(inverse: \PriceData.user) var priceData: [PriceData]?
+    @Relationship(inverse: \Post.user) var posts: [Post]?
     
     init(nickName: String = "", email: String, password: String, token: String = "") {
         self.nickName = nickName

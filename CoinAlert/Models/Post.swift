@@ -19,12 +19,11 @@ class Post {
     
     @Relationship var user: User?
 
-    init(title: String, content: String, timestamp: Date, likes: Int = 0, comments: Int = 0, user: User? = nil) {
+    init(title: String, content: String, timestamp: Date, likes: Int = 0, comments: Int = 0) {
         self.title = title
         self.content = content
         self.timestamp = timestamp
         self.likes = likes
         self.comments = comments
-        self.user = user
     }
 }

@@ -18,12 +18,11 @@ final class PriceData {
     
     @Relationship var user: User?
 
-    init(price: Double, date: Date, isTriggered: Bool = false, alertPrice: Double = 0.0, user: User? = nil) {
+    init(price: Double, date: Date, isTriggered:Bool = false, alertPrice: Double = 0.0) {
         self.id = UUID()
         self.price = price
         self.date = date
         self.isTriggered = isTriggered
         self.alertPrice = alertPrice
-        self.user = user
     }
 }
