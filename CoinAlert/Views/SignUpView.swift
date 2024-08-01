@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import CommonCrypto
+
 
 struct SignUpView: View {
     
@@ -136,10 +138,12 @@ struct SignUpView: View {
             return
         }
         
+        let hashedPassword = sha256(password)
+        
         let newUser = [
             "nickName" : nickname,
             "email": email,
-            "password": password
+            "password": hashedPassword
         ]
         
         guard let url = URL(string: "http://localhost:8080/auth/signup") else {
@@ -190,6 +194,16 @@ struct SignUpView: View {
         let passwordRegEx = "^(?=.*[A-Z])(?=.*[0-9]).{8,}$"
         let passwordTest = NSPredicate(format: "SELF MATCHES %@", passwordRegEx)
         return passwordTest.evaluate(with: pwd)
+    }
+    
+    // SHA-256 해싱 함수
+    func sha256(_ input: String) -> String {
+        guard let inputData = input.data(using: .utf8) else { return "" }
+        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+        inputData.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(inputData.count), &hash)
+        }
+        return hash.map { String(format: "%02x", $0) }.joined()
     }
 }
 
