@@ -6,12 +6,8 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct SignUpView: View {
-    @Environment(\.modelContext) var modelContext: ModelContext
-    
-    @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     
     @State private var nickname: String = ""
     @State private var email: String = ""
@@ -95,7 +91,7 @@ struct SignUpView: View {
                         .foregroundColor(.red)
                 }
                 
-       
+                
                 Button(action: {
                     signUp()
                 }) {
@@ -107,10 +103,6 @@ struct SignUpView: View {
                         .cornerRadius(10)
                 }
                 .padding(.top)
-                .navigationDestination(isPresented: $signUpSuccessful) {
-                    LoginView()
-                }
-
                 
                 Spacer()
             }
@@ -144,17 +136,48 @@ struct SignUpView: View {
             return
         }
         
-        let newUser = User(email: email, password: password)
-        modelContext.insert(newUser)
+        let newUser = [
+            "nickName" : nickname,
+            "email": email,
+            "password": password
+        ]
         
-        do {
-            try modelContext.save()
-            errorMessage = nil
-            isLoggedIn = true
-            signUpSuccessful = true
-        } catch {
-            errorMessage = "회원가입 실패: \(error.localizedDescription)"
+        guard let url = URL(string: "http://localhost:8080/auth/signup") else {
+            errorMessage = "유효하지 않은 URL"
+            return
         }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: newUser)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                }
+                return
+            }
+            
+            guard let data = data else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "서버로부터 응답이 없습니다."
+                }
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
+                DispatchQueue.main.async {
+                    self.errorMessage = nil
+                    self.signUpSuccessful = true
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.errorMessage = String(data: data, encoding: .utf8)
+                }
+            }
+        }.resume()
     }
     
     func isValidEmail(id: String) -> Bool {
@@ -173,6 +196,5 @@ struct SignUpView: View {
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
         SignUpView()
-            .modelContainer(for: User.self, inMemory: true)
     }
 }
