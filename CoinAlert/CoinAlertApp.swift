@@ -1,14 +1,5 @@
-//
-//  CoinAlertApp.swift
-//  CoinAlert
-//
-//  Created by 백지훈 on 7/16/24.
-//
-
 import SwiftUI
-import SwiftData
 import AuthenticationServices
-
 
 @main
 struct CoinAlertApp: App {
@@ -16,39 +7,13 @@ struct CoinAlertApp: App {
     
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     
-    var sharedModelContainer: ModelContainer? {
-        return createModelContainer()
-    }
-    
     var body: some Scene {
-            WindowGroup {
-                if let modelContainer = sharedModelContainer {
-                    if !isLoggedIn {
-                        ContentView()
-                            .modelContainer(modelContainer)
-                    } else {
-                        MainTabView()
-                            .modelContainer(modelContainer)
-                    }
-                } else {
-                    ErrorView(message: "모델 컨테이너를 생성할 수 없습니다. 앱을 다시 시작해 주세요.")
-                }
+        WindowGroup {
+            if !isLoggedIn {
+                ContentView()
+            } else {
+                MainTabView()
             }
-        }
-    
-    func createModelContainer() -> ModelContainer? {
-        let schema = Schema([
-            PriceData.self,
-            User.self,
-            Post.self
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-        
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            print("Could not create ModelContainer: \(error)")
-            return nil
         }
     }
 }

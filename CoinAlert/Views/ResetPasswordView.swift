@@ -1,12 +1,4 @@
-//
-//  ResetPasswordView.swift
-//  CoinAlert
-//
-//  Created by 백지훈 on 7/21/24.
-//
-
 import SwiftUI
-import SwiftData
 
 struct ResetPasswordView: View {
     @State private var email: String = ""
@@ -16,9 +8,7 @@ struct ResetPasswordView: View {
     @State private var resetFailed: Bool = false
     @State private var resetSuccess: Bool = false
     @State private var navigateToLogin: Bool = false
-    
-    @Environment(\.modelContext) private var modelContext: ModelContext
-    
+
     var body: some View {
         NavigationView {
             VStack(alignment: .leading, spacing: 20) {
@@ -120,24 +110,49 @@ struct ResetPasswordView: View {
             return
         }
         
-        let predicate = #Predicate<User> { $0.email == email }
-        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
+        let resetDetails = ["email": email, "password": password]
         
-        do {
-            let users = try modelContext.fetch(fetchDescriptor)
-            if let user = users.first {
-                user.password = password
-                try modelContext.save()
-                resetFailed = false
-                resetSuccess = true
-                navigateToLogin = true
-            } else {
-                resetFailed = true
-            }
-        } catch {
-            print("비밀번호 재설정 에러: \(error)")
-            resetFailed = true
+        guard let url = URL(string: "http://localhost:8080/auth/reset-password") else {
+            print("유효하지 않은 URL")
+            self.resetFailed = true
+            return
         }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: resetDetails)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.resetFailed = true
+                    print("비밀번호 재설정 에러: \(error.localizedDescription)")
+                }
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    self.resetFailed = true
+                    print("서버로부터 응답이 없습니다.")
+                }
+                return
+            }
+
+            if httpResponse.statusCode == 200 {
+                DispatchQueue.main.async {
+                    self.resetFailed = false
+                    self.resetSuccess = true
+                    self.navigateToLogin = true
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.resetFailed = true
+                    print("비밀번호 재설정 실패: 서버 응답 코드 \(httpResponse.statusCode)")
+                }
+            }
+        }.resume()
     }
 }
 

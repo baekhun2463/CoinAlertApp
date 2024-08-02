@@ -1,16 +1,6 @@
-//
-//  LoginView.swift
-//  CoinAlert
-//
-//  Created by 백지훈 on 7/21/24.
-//
-
 import SwiftUI
-import SwiftData
-import SwiftJWT
 import Security
 import Combine
-//import AuthenticationServices
 
 struct LoginView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
@@ -21,7 +11,6 @@ struct LoginView: View {
     @State private var showPassword: Bool = false
     @State private var loginFailed: Bool = false
     @State private var isLoading: Bool = false
-    @Environment(\.modelContext) private var modelContext: ModelContext
 
     var body: some View {
         NavigationStack {
@@ -87,26 +76,7 @@ struct LoginView: View {
                     }
                     .padding(.top)
                 }
-                //애플 OAuth인데 13만원 때문에 보류
-//                SignInWithAppleButton(
-//                    .signIn,
-//                    onRequest: { request in
-//                        request.requestedScopes = [.fullName, .email]
-//                    },
-//                    onCompletion: { result in
-//                        switch result {
-//                        case .success(let authResults):
-//                            handleAuthorization(authResults)
-//                        case .failure(let error):
-//                            print("Authorization failed: \(error.localizedDescription)")
-//                            loginFailed = true
-//                        }
-//                    }
-//                )
-//                .signInWithAppleButtonStyle(.black)
-//                .frame(height: 50)
-//                .padding(.top)
-                
+
                 HStack {
                     Spacer()
                     NavigationLink(destination: FindUsernameView()) {
@@ -148,63 +118,65 @@ struct LoginView: View {
         
         isLoading = true
         
-        let predicate = #Predicate<User> { $0.email == email && $0.password == password }
-        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
+        guard let url = URL(string: "http://localhost:8080/auth/login") else {
+            print("유효하지 않은 URL")
+            self.isLoading = false
+            self.loginFailed = true
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         
-        DispatchQueue.global().async {
-            do {
-                let users = try self.modelContext.fetch(fetchDescriptor)
+        let loginDetails = ["email": email, "password": password]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: loginDetails)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoading = false
+            }
+            
+            if let error = error {
                 DispatchQueue.main.async {
-                    if let user = users.first {
-                        if let token = self.generateJWT(for: user) {
-                            self.saveKeychainItem(token, forKey: "authToken")
-                            self.isLoggedIn = true
-                            self.loginFailed = false
-                        } else {
-                            self.loginFailed = true
-                        }
-                    } else {
-                        self.loginFailed = true
-                    }
-                    self.isLoading = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    print("로그인 에러: \(error)")
                     self.loginFailed = true
-                    self.isLoading = false
+                    print("로그인 에러: \(error.localizedDescription)")
+                }
+                return
+            }
+            
+            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    self.loginFailed = true
+                    print("서버로부터 응답이 없습니다.")
+                }
+                return
+            }
+
+            if httpResponse.statusCode == 200 {
+                do {
+                    let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+                    DispatchQueue.main.async {
+                        self.authToken = loginResponse.token
+                        self.saveKeychainItem(loginResponse.token, forKey: "authToken")
+                        self.isLoggedIn = true
+                        self.loginFailed = false
+                    }
+                } catch {
+                    DispatchQueue.main.async {
+                        self.loginFailed = true
+                        print("응답 데이터 파싱 에러: \(error.localizedDescription)")
+                    }
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.loginFailed = true
+                    print("로그인 실패: 서버 응답 코드 \(httpResponse.statusCode)")
                 }
             }
-        }
+        }.resume()
     }
-    
-    // JWT 생성
-    func generateJWT(for user: User) -> String? {
-        let expirationDate = Date(timeIntervalSinceNow: 7200)
-        let claims = MyClaims(sub: user.id.uuidString, email: user.email, exp: expirationDate)
-        var jwt = JWT(claims: claims)
-        
-        guard let key = getSecretKey() else {
-            print("비밀 키를 가져올 수 없습니다.")
-            return nil
-        }
-        
-        let signer = JWTSigner.hs256(key: Data(key.utf8))
-        
-        do {
-            let signedJWT = try jwt.sign(using: signer)
-            return signedJWT
-        } catch {
-            print("JWT 생성 에러: \(error)")
-            return nil
-        }
-    }
-    
-    // 비밀 키 가져오기
-    func getSecretKey() -> String? {
-        return getKeychainItem(forKey: "SECRET_KEY")
-    }
-    
+
     // 키체인 항목 저장
     func saveKeychainItem(_ value: String, forKey key: String) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
@@ -227,51 +199,7 @@ struct LoginView: View {
         }
         return status == errSecSuccess
     }
-    
-//    func handleAuthorization(_ authResults: ASAuthorization) {
-//        switch authResults.credential {
-//        case let appleIDCredential as ASAuthorizationAppleIDCredential:
-//            let userIdentifier = appleIDCredential.user
-//            let email = appleIDCredential.email ?? ""
-//            let fullName = appleIDCredential.fullName?.formatted() ?? ""
-//            let token = String(data: appleIDCredential.identityToken ?? Data(), encoding: .utf8) ?? ""
-//            
-//            // Handle the login with the userIdentifier, email, and token.
-//            // Save or validate the token as needed.
-//            if let _ = saveUser(email: email, fullName: fullName, token: token) {
-//                authToken = token
-//                isLoggedIn = true
-//                loginFailed = false
-//            } else {
-//                loginFailed = true
-//            }
-//        default:
-//            loginFailed = true
-//        }
-//    }
-//    
-//    func saveUser(email: String, fullName: String, token: String) -> User? {
-//        let predicate = #Predicate<User> { $0.email == email }
-//        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
-//        
-//        do {
-//            let users = try modelContext.fetch(fetchDescriptor)
-//            if let user = users.first {
-//                user.token = token
-//                try modelContext.save()
-//                return user
-//            } else {
-//                let newUser = User(nickName: fullName, email: email, password: "", token: token)
-//                modelContext.insert(newUser)
-//                try modelContext.save()
-//                return newUser
-//            }
-//        } catch {
-//            print("유저 저장 에러: \(error)")
-//            return nil
-//        }
-//    }
-    
+
     // 키체인 항목 가져오기
     func getKeychainItem(forKey key: String) -> String? {
         let query: [String: Any] = [
@@ -294,6 +222,10 @@ struct LoginView: View {
         }
         return nil
     }
+}
+
+struct LoginResponse: Codable {
+    let token: String
 }
 
 struct LoginView_Previews: PreviewProvider {

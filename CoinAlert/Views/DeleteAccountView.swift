@@ -1,18 +1,10 @@
-//
-//  DeleteAccountView.swift
-//  CoinAlert
-//
-//  Created by 백지훈 on 7/21/24.
-//
-
 import SwiftUI
-import SwiftData
 
 struct DeleteAccountView: View {
-    @Environment(\.modelContext) private var modelContext: ModelContext
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
     @AppStorage("authToken") var authToken: String?
     @State private var accountDeleted: Bool = false
+    @State private var errorMessage: String?
 
     var body: some View {
         VStack(spacing: 20) {
@@ -25,6 +17,11 @@ struct DeleteAccountView: View {
                 .foregroundColor(.red)
                 .multilineTextAlignment(.center)
                 .padding()
+            
+            if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+            }
             
             Button(action: {
                 deleteAccount()
@@ -49,30 +46,42 @@ struct DeleteAccountView: View {
     func deleteAccount() {
         guard let token = authToken else { return }
 
-        let predicate = #Predicate<User> { $0.token == token }
-        let fetchDescriptor = FetchDescriptor<User>(predicate: predicate)
-        
-        do {
-            let users = try modelContext.fetch(fetchDescriptor)
-            if let user = users.first {
-                // 연결된 PriceData 및 Post 삭제
-                user.priceData?.forEach { modelContext.delete($0) }
-                user.posts!.forEach { modelContext.delete($0) }
-
-                // User 삭제
-                modelContext.delete(user)
-                
-                // 저장
-                try modelContext.save()
-                
-                // 로그아웃
-                isLoggedIn = false
-                authToken = nil
-                accountDeleted = true
-            }
-        } catch {
-            print("계정 삭제 에러: \(error)")
+        guard let url = URL(string: "http://localhost:8080/auth/deleteAccount") else {
+            errorMessage = "유효하지 않은 URL"
+            return
         }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "DELETE"
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = error.localizedDescription
+                }
+                return
+            }
+
+            guard let httpResponse = response as? HTTPURLResponse else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "서버로부터 응답이 없습니다."
+                }
+                return
+            }
+
+            if httpResponse.statusCode == 200 {
+                DispatchQueue.main.async {
+                    self.isLoggedIn = false
+                    self.authToken = nil
+                    self.accountDeleted = true
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "계정 삭제에 실패했습니다."
+                }
+            }
+        }.resume()
     }
 }
 

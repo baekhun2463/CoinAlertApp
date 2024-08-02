@@ -8,7 +8,6 @@
 import SwiftUI
 import CommonCrypto
 
-
 struct SignUpView: View {
     
     @State private var nickname: String = ""
@@ -139,13 +138,8 @@ struct SignUpView: View {
         }
         
         let hashedPassword = sha256(password)
-        
-        let newUser = [
-            "nickName" : nickname,
-            "email": email,
-            "password": hashedPassword
-        ]
-        
+        let newUser = User(nickName: nickname, email: email, password: hashedPassword)
+
         guard let url = URL(string: "http://localhost:8080/auth/signup") else {
             errorMessage = "유효하지 않은 URL"
             return
@@ -154,7 +148,7 @@ struct SignUpView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: newUser)
+        request.httpBody = try? JSONEncoder().encode(newUser)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
@@ -206,6 +200,7 @@ struct SignUpView: View {
         return hash.map { String(format: "%02x", $0) }.joined()
     }
 }
+
 
 struct SignUpView_Previews: PreviewProvider {
     static var previews: some View {
