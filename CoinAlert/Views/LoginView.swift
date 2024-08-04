@@ -115,9 +115,9 @@ struct LoginView: View {
             loginFailed = true
             return
         }
-        
+
         isLoading = true
-        
+
         guard let url = URL(string: "http://localhost:8080/auth/login") else {
             print("유효하지 않은 URL")
             self.isLoading = false
@@ -128,7 +128,7 @@ struct LoginView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
+
         let loginDetails = ["email": email, "password": password]
         request.httpBody = try? JSONSerialization.data(withJSONObject: loginDetails)
 
@@ -136,7 +136,7 @@ struct LoginView: View {
             DispatchQueue.main.async {
                 self.isLoading = false
             }
-            
+
             if let error = error {
                 DispatchQueue.main.async {
                     self.loginFailed = true
@@ -144,7 +144,7 @@ struct LoginView: View {
                 }
                 return
             }
-            
+
             guard let data = data, let httpResponse = response as? HTTPURLResponse else {
                 DispatchQueue.main.async {
                     self.loginFailed = true
@@ -155,10 +155,10 @@ struct LoginView: View {
 
             if httpResponse.statusCode == 200 {
                 do {
-                    let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+                    let user = try JSONDecoder().decode(User.self, from: data)
                     DispatchQueue.main.async {
-                        self.authToken = loginResponse.token
-                        self.saveKeychainItem(loginResponse.token, forKey: "authToken")
+                        self.authToken = user.token
+                        self.saveKeychainItem(user.token, forKey: "authToken")
                         self.isLoggedIn = true
                         self.loginFailed = false
                     }
@@ -176,6 +176,7 @@ struct LoginView: View {
             }
         }.resume()
     }
+
 
     // 키체인 항목 저장
     func saveKeychainItem(_ value: String, forKey key: String) -> Bool {
