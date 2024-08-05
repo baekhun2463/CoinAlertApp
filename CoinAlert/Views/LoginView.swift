@@ -129,8 +129,8 @@ struct LoginView: View {
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        let loginDetails = ["email": email, "password": password]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: loginDetails)
+        let loginRequest = ["email": email, "password": password]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: loginRequest)
 
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
@@ -155,10 +155,10 @@ struct LoginView: View {
 
             if httpResponse.statusCode == 200 {
                 do {
-                    let user = try JSONDecoder().decode(User.self, from: data)
+                    let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
                     DispatchQueue.main.async {
-                        self.authToken = user.token
-                        self.saveKeychainItem(user.token, forKey: "authToken")
+                        self.authToken = loginResponse.jwt
+                        self.saveKeychainItem(loginResponse.jwt, forKey: "authToken")
                         self.isLoggedIn = true
                         self.loginFailed = false
                     }
@@ -226,7 +226,7 @@ struct LoginView: View {
 }
 
 struct LoginResponse: Codable {
-    let token: String
+    let jwt: String
 }
 
 struct LoginView_Previews: PreviewProvider {
