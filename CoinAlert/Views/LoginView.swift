@@ -4,7 +4,7 @@ import Combine
 
 struct LoginView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
-    @AppStorage("authToken") var authToken: String?
+//    @AppStorage("authToken") var authToken: String?
 
     @State private var email: String = ""
     @State private var password: String = ""
