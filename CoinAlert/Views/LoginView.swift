@@ -157,7 +157,7 @@ struct LoginView: View {
                 do {
                     let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
                     DispatchQueue.main.async {
-                        self.authToken = loginResponse.jwt
+//                        self.authToken = loginResponse.jwt
                         self.saveKeychainItem(loginResponse.jwt, forKey: "authToken")
                         self.isLoggedIn = true
                         self.loginFailed = false

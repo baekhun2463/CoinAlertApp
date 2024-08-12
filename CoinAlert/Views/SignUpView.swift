@@ -140,7 +140,7 @@ struct SignUpView: View {
         let hashedPassword = sha256(password)
         let newUser = User(nickName: nickname, email: email, password: hashedPassword)
 
-        guard let url = URL(string: "http://localhost:8080/auth/signup") else {
+        guard let url = URL(string: "http://localhost:8080/auth/register") else {
             errorMessage = "유효하지 않은 URL"
             return
         }
