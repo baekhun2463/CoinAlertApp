@@ -6,20 +6,16 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-final class PriceData {
-    @Attribute(.unique) var id: UUID
-    @Attribute var price: Double
-    @Attribute var date: Date
-    @Attribute var isTriggered: Bool
-    @Attribute var alertPrice: Double
-    
-    @Relationship var user: User?
+struct PriceData {
+    var id: Int64?
+    var price: Double
+    var date: Date
+    var isTriggered: Bool
+    var alertPrice: Double
+
 
     init(price: Double, date: Date, isTriggered:Bool = false, alertPrice: Double = 0.0) {
-        self.id = UUID()
         self.price = price
         self.date = date
         self.isTriggered = isTriggered

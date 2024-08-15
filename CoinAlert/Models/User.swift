@@ -8,43 +8,38 @@
 import Foundation
 
 struct User: Codable {
-    var id: UUID?
-    var nickName: String
+    var id: Int64?
+    var nickname: String
     var email: String
     var password: String
-    var token: String
-    
-    init(id: UUID? = nil, nickName: String, email: String, password: String, token: String = "") {
+        
+    init(id: Int64? = nil, nickname: String, email: String, password: String) {
         self.id = id
-        self.nickName = nickName
+        self.nickname = nickname
         self.email = email
         self.password = password
-        self.token = token
     }
     
     private enum CodingKeys: String, CodingKey {
         case id
-        case nickName = "nickName"
+        case nickname = "nickname"
         case email = "email"
         case password = "password"
-        case token = "token"
     }
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        id = try container.decodeIfPresent(UUID.self, forKey: .id)
-        nickName = try container.decode(String.self, forKey: .nickName)
+        id = try container.decodeIfPresent(Int64.self, forKey: .id)
+        nickname = try container.decode(String.self, forKey: .nickname)
         email = try container.decode(String.self, forKey: .email)
         password = try container.decode(String.self, forKey: .password)
-        token = try container.decode(String.self, forKey: .token)
     }
     
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encodeIfPresent(id, forKey: .id)
-        try container.encode(nickName, forKey: .nickName)
+        try container.encode(nickname, forKey: .nickname)
         try container.encode(email, forKey: .email)
         try container.encode(password, forKey: .password)
-        try container.encode(token, forKey: .token)
     }
 }

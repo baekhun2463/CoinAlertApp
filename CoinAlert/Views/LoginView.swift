@@ -4,8 +4,6 @@ import Combine
 
 struct LoginView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
-//    @AppStorage("authToken") var authToken: String?
-
     @State private var email: String = ""
     @State private var password: String = ""
     @State private var showPassword: Bool = false
@@ -107,9 +105,11 @@ struct LoginView: View {
             .navigationBarTitle("", displayMode: .inline)
             .navigationBarHidden(true)
         }
+        .fullScreenCover(isPresented: $isLoggedIn) {
+            MainTabView()
+        }
     }
-    
-    // 로그인 함수
+
     func login() {
         guard !email.isEmpty, !password.isEmpty else {
             loginFailed = true
@@ -118,74 +118,33 @@ struct LoginView: View {
 
         isLoading = true
 
-        guard let url = URL(string: "http://localhost:8080/auth/login") else {
-            print("유효하지 않은 URL")
-            self.isLoading = false
-            self.loginFailed = true
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-        let loginRequest = ["email": email, "password": password]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: loginRequest)
-
-        URLSession.shared.dataTask(with: request) { data, response, error in
+        let loginService = LoginService()
+        let loginModel = LoginModel(email: email, password: password)
+        
+        loginService.validateLoginDetails(user: loginModel) { result in
             DispatchQueue.main.async {
                 self.isLoading = false
-            }
-
-            if let error = error {
-                DispatchQueue.main.async {
+                switch result {
+                case .success(let response):
+                    saveJWTToKeychain(token: response.jwt)
+                    self.isLoggedIn = true
+                    self.loginFailed = false
+                case .failure(let error):
                     self.loginFailed = true
-                    print("로그인 에러: \(error.localizedDescription)")
-                }
-                return
-            }
-
-            guard let data = data, let httpResponse = response as? HTTPURLResponse else {
-                DispatchQueue.main.async {
-                    self.loginFailed = true
-                    print("서버로부터 응답이 없습니다.")
-                }
-                return
-            }
-
-            if httpResponse.statusCode == 200 {
-                do {
-                    let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
-                    DispatchQueue.main.async {
-//                        self.authToken = loginResponse.jwt
-                        self.saveKeychainItem(loginResponse.jwt, forKey: "authToken")
-                        self.isLoggedIn = true
-                        self.loginFailed = false
-                    }
-                } catch {
-                    DispatchQueue.main.async {
-                        self.loginFailed = true
-                        print("응답 데이터 파싱 에러: \(error.localizedDescription)")
-                    }
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.loginFailed = true
-                    print("로그인 실패: 서버 응답 코드 \(httpResponse.statusCode)")
+                    print("Login failed with error: \(error.localizedDescription)")
                 }
             }
-        }.resume()
+        }
     }
-
-
-    // 키체인 항목 저장
-    func saveKeychainItem(_ value: String, forKey key: String) -> Bool {
-        guard let data = value.data(using: .utf8) else { return false }
+    
+    // JWT를 키체인에 저장하는 함수
+    func saveJWTToKeychain(token: String) {
+        let tokenData = token.data(using: .utf8)!
         
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecValueData as String: data,
+            kSecAttrAccount as String: "authToken",
+            kSecValueData as String: tokenData,
             kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock
         ]
         
@@ -194,34 +153,10 @@ struct LoginView: View {
         
         let status = SecItemAdd(query as CFDictionary, nil)
         if status == errSecSuccess {
-            print("키체인 항목 저장 성공")
+            print("JWT 저장 성공")
         } else {
-            print("키체인 항목 저장 실패: \(status)")
+            print("JWT 저장 실패: \(status)")
         }
-        return status == errSecSuccess
-    }
-
-    // 키체인 항목 가져오기
-    func getKeychainItem(forKey key: String) -> String? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: key,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-        
-        var item: CFTypeRef?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
-        
-        if status == errSecSuccess {
-            print("키체인 항목 가져오기 성공")
-            if let data = item as? Data, let value = String(data: data, encoding: .utf8) {
-                return value
-            }
-        } else {
-            print("키체인 항목 가져오기 실패: \(status)")
-        }
-        return nil
     }
 }
 
