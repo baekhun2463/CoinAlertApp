@@ -6,16 +6,14 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct SetAlertView: View {
     @State private var alertPrice: String = ""
     @State private var bitcoinPrice: Double?
     @State private var isLoading = true
     @State private var errorMessage: String?
-    @Environment(\.modelContext) var modelContext
-    @Environment(\.presentationMode) var presentationMode
-    var onSave: (Double) -> Void
+
+    let priceDataService = PriceDataService()
     
     var body: some View {
         VStack {
@@ -39,10 +37,15 @@ struct SetAlertView: View {
                     
                     Button(action: {
                         if let price = Double(alertPrice) {
-                            onSave(price)
-                            presentationMode.wrappedValue.dismiss()
                             let newAlert = PriceData(price: bitcoinPrice, date: Date(), alertPrice: price)
-                            modelContext.insert(newAlert)
+                            priceDataService.addPriceData(newAlert) { result in
+                                switch result {
+                                case .success:
+                                    print("Alert successfully added.")
+                                case .failure(let error):
+                                    print("Failed to add alert: \(error.localizedDescription)")
+                                }
+                            }
                         }
                     }) {
                         Text("확인")
@@ -75,12 +78,5 @@ struct SetAlertView: View {
                 }
             }
         }
-    }
-}
-
-struct SetAlertView_Previews: PreviewProvider {
-    static var previews: some View {
-        SetAlertView(onSave: { _ in })
-            .modelContainer(for: PriceData.self, inMemory: true)
     }
 }

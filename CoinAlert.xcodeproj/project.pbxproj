@@ -36,6 +36,8 @@
 		0F349BA22C4CF092001AC264 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA12C4CF092001AC264 /* User.swift */; };
 		0F349BA82C4CFF35001AC264 /* Post.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA72C4CFF35001AC264 /* Post.swift */; };
 		0F349BAA2C4CFF8D001AC264 /* NewPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA92C4CFF8D001AC264 /* NewPostView.swift */; };
+		0F47E6332C6F223C003D0E58 /* PriceDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47E6322C6F223C003D0E58 /* PriceDataService.swift */; };
+		0F47E6352C6F2840003D0E58 /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47E6342C6F2840003D0E58 /* AlertService.swift */; };
 		0FE235F62C4E2E77004ECE06 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 0FE235F52C4E2E77004ECE06 /* SwiftJWT */; };
 /* End PBXBuildFile section */
 
@@ -70,6 +72,8 @@
 		0F349BA12C4CF092001AC264 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		0F349BA72C4CFF35001AC264 /* Post.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Post.swift; sourceTree = "<group>"; };
 		0F349BA92C4CFF8D001AC264 /* NewPostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewPostView.swift; sourceTree = "<group>"; };
+		0F47E6322C6F223C003D0E58 /* PriceDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDataService.swift; sourceTree = "<group>"; };
+		0F47E6342C6F2840003D0E58 /* AlertService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
 		0F5B070B2C4E24B8004C578D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -167,6 +171,8 @@
 			children = (
 				0F0F33092C47AE3200BB0D05 /* BitcoinPriceService.swift */,
 				0F2B234D2C6B4B1F00668E03 /* LoginService.swift */,
+				0F47E6322C6F223C003D0E58 /* PriceDataService.swift */,
+				0F47E6342C6F2840003D0E58 /* AlertService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -257,6 +263,7 @@
 			files = (
 				0F349B992C4CCE8F001AC264 /* EditProfileView.swift in Sources */,
 				0F2B234E2C6B4B1F00668E03 /* LoginService.swift in Sources */,
+				0F47E6352C6F2840003D0E58 /* AlertService.swift in Sources */,
 				0F349B9D2C4CCEDF001AC264 /* DeleteAccountView.swift in Sources */,
 				0F0F33212C47C58900BB0D05 /* AppDelegate.swift in Sources */,
 				0F349BA82C4CFF35001AC264 /* Post.swift in Sources */,
@@ -271,6 +278,7 @@
 				0F1245592C4619490012E2D0 /* CoinAlertApp.swift in Sources */,
 				0F349BA22C4CF092001AC264 /* User.swift in Sources */,
 				0F1245742C4635E40012E2D0 /* SettingsView.swift in Sources */,
+				0F47E6332C6F223C003D0E58 /* PriceDataService.swift in Sources */,
 				0F349B912C4CC5CC001AC264 /* LoginView.swift in Sources */,
 				0F349B9B2C4CCEBC001AC264 /* NotificationSettingsView.swift in Sources */,
 				0F0F33252C47CDE800BB0D05 /* AlertView.swift in Sources */,

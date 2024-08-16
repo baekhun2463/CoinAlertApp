@@ -7,7 +7,6 @@
 
 import SwiftUI
 import UserNotifications
-import SwiftData
 
 struct MainView: View {
     @State private var bitcoinPrice: PriceData?
@@ -17,10 +16,6 @@ struct MainView: View {
     @State private var notificationPermissionGranted = false
     @State private var showAlert = false
     @State private var alertMessage = ""
-    
-    @Environment(\.modelContext) var modelContext
-
-    @Query var priceDataList: [PriceData]
     
     var body: some View {
         NavigationView {
@@ -38,9 +33,7 @@ struct MainView: View {
                             .font(.title)
                             .foregroundColor(.green)
                         
-                        NavigationLink(destination: SetAlertView(onSave: { price in
-                            alertPrice = price
-                        })) {
+                        NavigationLink(destination: SetAlertView()) {
                             Text("알림 설정")
                                 .font(.headline)
                                 .padding()
@@ -54,7 +47,7 @@ struct MainView: View {
                         .foregroundColor(.red)
                 }
             }
-            .navigationTitle("Bitcoin Tracker")
+            .navigationTitle("비트코인 가격 알림")
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("알림 권한 필요"),
@@ -79,7 +72,6 @@ struct MainView: View {
                 switch result {
                 case .success(let price):
                     bitcoinPrice = price
-                    checkPriceAlert()
                 case .failure(let error):
                     errorMessage = error.localizedDescription
                 }
@@ -112,7 +104,7 @@ struct MainView: View {
                 } else {
                     notificationPermissionGranted = granted
                     if granted {
-                        checkPriceAlert()
+                        print("Good")
                     } else {
                         alertMessage = "알림을 설정하려면 알림 권한이 필요합니다. 설정에서 권한을 허용해주세요."
                         showAlert = true
@@ -120,45 +112,5 @@ struct MainView: View {
                 }
             }
         }
-    }
-    
-    //여긴 나중에 수정
-    func checkPriceAlert() {
-            if let bitcoinPrice = bitcoinPrice {
-                for alert in priceDataList {
-                    if bitcoinPrice.price >= alert.alertPrice && !alert.isTriggered {
-                        scheduleNotification(for: bitcoinPrice.price)
-                        alert.isTriggered = true
-                        do {
-                            try modelContext.save()
-                        } catch {
-                            print("Failed to save alert: \(error.localizedDescription)")
-                        }
-                    }
-                }
-            }
-        }
-    
-    func scheduleNotification(for currentPrice: Double) {
-        let content = UNMutableNotificationContent()
-        content.title = "비트코인 가격 알림"
-        content.body = "현재 비트코인 가격은 \(String(format: "%.0f", currentPrice))입니다."
-        content.sound = .default
-        
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("알림 추가 에러: \(error.localizedDescription)")
-            } else {
-                print("알림이 성공적으로 추가되었습니다.")
-            }
-        }
-    }
-}
-
-struct MainView_Previews: PreviewProvider {
-    static var previews: some View {
-        MainView()
     }
 }

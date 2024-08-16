@@ -5,16 +5,18 @@
 //  Created by 백지훈 on 7/17/24.
 //
 
+
 import SwiftUI
-import SwiftData
 
 struct AlertView: View {
-    @Environment(\.modelContext) var modelContext
-    @Query private var priceDataList: [PriceData]
+    @State private var priceDataList: [PriceData] = []
+    @State private var isLoading = true
+    @State private var errorMessage: String?
+    private let alertService = AlertService()
 
     var body: some View {
         List {
-            ForEach(priceDataList) { priceData in
+            ForEach(priceDataList, id: \.id) { priceData in
                 HStack {
                     VStack(alignment: .leading) {
                         Text("Price: \(priceData.price, specifier: "%.2f")")
@@ -25,8 +27,7 @@ struct AlertView: View {
                     Spacer()
 
                     Button(action: {
-                        modelContext.delete(priceData)
-                        try? modelContext.save()
+                        deleteAlert(priceData: priceData)
                     }) {
                         Image(systemName: "trash")
                             .foregroundColor(.red)
@@ -36,13 +37,42 @@ struct AlertView: View {
             .onDelete(perform: deleteItems)
         }
         .navigationTitle("알림 내역")
+        .onAppear(perform: loadAlerts)
+    }
+
+    private func loadAlerts() {
+        alertService.fetchAlerts { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let alerts):
+                    self.priceDataList = alerts
+                    self.isLoading = false
+                case .failure(let error):
+                    self.errorMessage = error.localizedDescription
+                    self.isLoading = false
+                }
+            }
+        }
+    }
+
+    private func deleteAlert(priceData: PriceData) {
+        guard let id = priceData.id else { return }
+        alertService.deleteAlert(id: id) { result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    if let index = priceDataList.firstIndex(where: { $0.id == id }) {
+                        priceDataList.remove(at: index)
+                    }
+                case .failure(let error):
+                    print("Failed to delete alert: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            offsets.map { priceDataList[$0] }.forEach(modelContext.delete)
-            try? modelContext.save()
-        }
+        offsets.map { priceDataList[$0] }.forEach { deleteAlert(priceData: $0) }
     }
 }
 
@@ -52,7 +82,6 @@ private let itemFormatter: DateFormatter = {
     formatter.timeStyle = .short
     return formatter
 }()
-
 
 struct AlertView_Previews: PreviewProvider {
     static var previews: some View {
