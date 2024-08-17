@@ -1,6 +1,16 @@
 import SwiftUI
 import Security
 import Combine
+import AuthenticationServices
+
+class LoginViewCoordinator: NSObject, ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        return UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first(where: { $0.isKeyWindow }) ?? ASPresentationAnchor()
+    }
+}
 
 struct LoginView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
@@ -9,6 +19,7 @@ struct LoginView: View {
     @State private var showPassword: Bool = false
     @State private var loginFailed: Bool = false
     @State private var isLoading: Bool = false
+    @State private var coordinator = LoginViewCoordinator()
 
     var body: some View {
         NavigationStack {
@@ -69,6 +80,18 @@ struct LoginView: View {
                             .frame(maxWidth: .infinity)
                             .padding()
                             .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding(.top)
+
+                    Button(action: {
+                        startGitHubLogin()
+                    }) {
+                        Text("GitHub로 로그인")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.black)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
@@ -135,6 +158,34 @@ struct LoginView: View {
                 }
             }
         }
+    }
+    
+    func startGitHubLogin() {
+        guard let authURL = URL(string: "https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&scope=repo") else { return }
+        
+        let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "your-app-scheme") { callbackURL, error in
+            if let callbackURL = callbackURL, error == nil {
+                // GitHub 로그인 성공 처리
+                handleGitHubLoginSuccess(callbackURL: callbackURL)
+            } else {
+                // GitHub 로그인 실패 처리
+                print("GitHub 로그인 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
+            }
+        }
+        session.presentationContextProvider = coordinator
+        session.start()
+    }
+
+    func handleGitHubLoginSuccess(callbackURL: URL) {
+        // GitHub OAuth2 성공 후 토큰 처리
+        let token = extractToken(from: callbackURL)
+        saveJWTToKeychain(token: token)
+        isLoggedIn = true
+    }
+
+    func extractToken(from url: URL) -> String {
+        // URL에서 토큰 추출하는 로직 구현
+        return ""
     }
     
     // JWT를 키체인에 저장하는 함수
