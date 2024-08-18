@@ -161,14 +161,14 @@ struct LoginView: View {
     }
     
     func startGitHubLogin() {
-        guard let authURL = URL(string: "https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&scope=repo") else { return }
+        // 실제 client_id로 대체
+        guard let authURL = URL(string: "https://github.com/login/oauth/authorize?client_id=Ov23li2dR2sp62qsh8sK&scope=user") else { return }
         
-        let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "your-app-scheme") { callbackURL, error in
+        // 실제 callback URL 스킴으로 대체
+        let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "CoinAlertApp") { callbackURL, error in
             if let callbackURL = callbackURL, error == nil {
-                // GitHub 로그인 성공 처리
                 handleGitHubLoginSuccess(callbackURL: callbackURL)
             } else {
-                // GitHub 로그인 실패 처리
                 print("GitHub 로그인 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
             }
         }
@@ -176,16 +176,72 @@ struct LoginView: View {
         session.start()
     }
 
+
     func handleGitHubLoginSuccess(callbackURL: URL) {
-        // GitHub OAuth2 성공 후 토큰 처리
-        let token = extractToken(from: callbackURL)
-        saveJWTToKeychain(token: token)
-        isLoggedIn = true
+        if let code = extractCode(from: callbackURL) {
+            exchangeCodeForToken(code: code)
+        }
     }
 
-    func extractToken(from url: URL) -> String {
-        // URL에서 토큰 추출하는 로직 구현
-        return ""
+    func extractCode(from url: URL) -> String? {
+        let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        return components?.queryItems?.first { $0.name == "code" }?.value
+    }
+
+    func exchangeCodeForToken(code: String) {
+        guard let url = URL(string: "https://github.com/login/oauth/access_token") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        let bodyParams = [
+            "client_id": "Ov23li2dR2sp62qsh8sK",
+            "client_secret": "51c1536346bb955fd92fcea0c92d2670d75c9115",
+            "code": code,
+            "redirect_uri": "CoinAlert://oauth-callback"
+        ]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: bodyParams)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else { return }
+            if let accessToken = String(data: data, encoding: .utf8)?.components(separatedBy: "&").first(where: { $0.contains("access_token") })?.components(separatedBy: "=").last {
+                fetchGitHubUser(accessToken: accessToken)
+            }
+        }.resume()
+    }
+
+    func fetchGitHubUser(accessToken: String) {
+        guard let url = URL(string: "https://api.github.com/user") else { return }
+        
+        var request = URLRequest(url: url)
+        request.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else { return }
+            if let githubUser = try? JSONDecoder().decode(GitHubUser.self, from: data) {
+                saveUserToBackend(user: githubUser)
+            }
+        }.resume()
+    }
+
+    func saveUserToBackend(user: GitHubUser) {
+        guard let url = URL(string: "http://localhost:8080/auth/github-login") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONEncoder().encode(user)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            guard let data = data else { return }
+            if let response = response as? HTTPURLResponse, response.statusCode == 200 {
+                DispatchQueue.main.async {
+                    self.isLoggedIn = true
+                }
+            } else {
+                print("백엔드에 사용자 정보 저장 실패")
+            }
+        }.resume()
     }
     
     // JWT를 키체인에 저장하는 함수
@@ -209,6 +265,14 @@ struct LoginView: View {
             print("JWT 저장 실패: \(status)")
         }
     }
+}
+
+struct GitHubUser: Codable {
+    let id: Int
+    let login: String
+    let name: String?
+    let email: String?
+    let avatar_url: String?
 }
 
 struct LoginResponse: Codable {

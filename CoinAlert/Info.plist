@@ -15,3 +15,16 @@
 	<true/>
 </dict>
 </plist>
+
+
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleURLName</key>
+        <string>com.CoinAlert.CoinAlertApp</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>CoinAlertApp</string>
+        </array>
+    </dict>
+</array>
