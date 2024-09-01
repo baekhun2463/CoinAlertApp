@@ -137,8 +137,9 @@ struct SignUpView: View {
             return
         }
         
+        
         let newUser = User(nickname: nickname, email: email, password: password)
-
+        
         guard let url = URL(string: "http://localhost:8080/auth/register") else {
             errorMessage = "유효하지 않은 URL"
             return
@@ -147,7 +148,7 @@ struct SignUpView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-       
+        
         request.httpBody = try? JSONEncoder().encode(newUser)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
@@ -191,14 +192,14 @@ struct SignUpView: View {
     }
     
     // SHA-256 해싱 함수
-//    func sha256(_ input: String) -> String {
-//        guard let inputData = input.data(using: .utf8) else { return "" }
-//        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-//        inputData.withUnsafeBytes {
-//            _ = CC_SHA256($0.baseAddress, CC_LONG(inputData.count), &hash)
-//        }
-//        return hash.map { String(format: "%02x", $0) }.joined()
-//    }
+    //    func sha256(_ input: String) -> String {
+    //        guard let inputData = input.data(using: .utf8) else { return "" }
+    //        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
+    //        inputData.withUnsafeBytes {
+    //            _ = CC_SHA256($0.baseAddress, CC_LONG(inputData.count), &hash)
+    //        }
+    //        return hash.map { String(format: "%02x", $0) }.joined()
+    //    }
 }
 
 

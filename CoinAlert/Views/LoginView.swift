@@ -161,13 +161,23 @@ struct LoginView: View {
     }
     
     func startGitHubLogin() {
-        // 실제 client_id로 대체
-        guard let authURL = URL(string: "https://github.com/login/oauth/authorize?client_id=Ov23li2dR2sp62qsh8sK&scope=user") else { return }
+        // Info.plist에서 client_id와 customScheme 가져오기
+        guard let clientId = Bundle.main.object(forInfoDictionaryKey: "GitHubClientID") as? String,
+              let customScheme = Bundle.main.object(forInfoDictionaryKey: "CustomScheme") as? String else {
+            print("필요한 정보가 없습니다.")
+            return
+        }
         
-        // 실제 callback URL 스킴으로 대체
-        let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: "CoinAlertApp") { callbackURL, error in
+        let authURLString = "https://github.com/login/oauth/authorize?client_id=\(clientId)&redirect_uri=\(customScheme)://oauth-callback&scope=user user:email"
+        
+        guard let authURL = URL(string: authURLString) else {
+            print("잘못된 URL입니다.")
+            return
+        }
+        
+        let session = ASWebAuthenticationSession(url: authURL, callbackURLScheme: customScheme) { callbackURL, error in
             if let callbackURL = callbackURL, error == nil {
-                handleGitHubLoginSuccess(callbackURL: callbackURL)
+                self.handleGitHubLoginSuccess(callbackURL: callbackURL)
             } else {
                 print("GitHub 로그인 실패: \(error?.localizedDescription ?? "알 수 없는 오류")")
             }
@@ -175,7 +185,6 @@ struct LoginView: View {
         session.presentationContextProvider = coordinator
         session.start()
     }
-
 
     func handleGitHubLoginSuccess(callbackURL: URL) {
         if let code = extractCode(from: callbackURL) {
@@ -190,22 +199,30 @@ struct LoginView: View {
 
     func exchangeCodeForToken(code: String) {
         guard let url = URL(string: "https://github.com/login/oauth/access_token") else { return }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        let bodyParams = [
-            "client_id": "Ov23li2dR2sp62qsh8sK",
-            "client_secret": "51c1536346bb955fd92fcea0c92d2670d75c9115",
-            "code": code,
-            "redirect_uri": "CoinAlert://oauth-callback"
-        ]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: bodyParams)
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         
+        let bodyString = "client_id=\(Bundle.main.object(forInfoDictionaryKey: "GitHubClientID") as? String ?? "")&client_secret=\(Bundle.main.object(forInfoDictionaryKey: "GitHubClientSecret") as? String ?? "")&code=\(code)&redirect_uri=\(Bundle.main.object(forInfoDictionaryKey: "CustomScheme") as? String ?? "")://oauth-callback"
+        
+        request.httpBody = bodyString.data(using: .utf8)
+
         URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data else { return }
+            if let error = error {
+                print("토큰 요청 중 오류 발생: \(error.localizedDescription)")
+                return
+            }
+            
+            guard let data = data else {
+                print("데이터가 없습니다.")
+                return
+            }
+
             if let accessToken = String(data: data, encoding: .utf8)?.components(separatedBy: "&").first(where: { $0.contains("access_token") })?.components(separatedBy: "=").last {
-                fetchGitHubUser(accessToken: accessToken)
+                self.fetchGitHubUser(accessToken: accessToken)
+            } else {
+                print("엑세스 토큰을 찾을 수 없습니다.")
             }
         }.resume()
     }
@@ -219,10 +236,17 @@ struct LoginView: View {
         URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else { return }
             if let githubUser = try? JSONDecoder().decode(GitHubUser.self, from: data) {
-                saveUserToBackend(user: githubUser)
+                // GitHub의 login을 name으로 설정
+                var updatedUser = githubUser
+                updatedUser.nickname = githubUser.login
+                print(updatedUser)
+                print(githubUser)
+                // 업데이트된 사용자 정보를 백엔드로 전송
+                self.saveUserToBackend(user: updatedUser)
             }
         }.resume()
     }
+
 
     func saveUserToBackend(user: GitHubUser) {
         guard let url = URL(string: "http://localhost:8080/auth/github-login") else { return }
@@ -235,8 +259,11 @@ struct LoginView: View {
         URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else { return }
             if let response = response as? HTTPURLResponse, response.statusCode == 200 {
-                DispatchQueue.main.async {
-                    self.isLoggedIn = true
+                if let responseObject = try? JSONDecoder().decode(LoginResponse.self, from: data) {
+                    saveJWTToKeychain(token: responseObject.jwt)
+                    DispatchQueue.main.async {
+                        self.isLoggedIn = true
+                    }
                 }
             } else {
                 print("백엔드에 사용자 정보 저장 실패")
@@ -270,7 +297,7 @@ struct LoginView: View {
 struct GitHubUser: Codable {
     let id: Int
     let login: String
-    let name: String?
+    var nickname: String?
     let email: String?
     let avatar_url: String?
 }
