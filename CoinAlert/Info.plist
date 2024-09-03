@@ -34,5 +34,8 @@
     <string>CoinAlertApp</string>
     <key>GitHubClientSecret</key>
     <string>51c1536346bb955fd92fcea0c92d2670d75c9115</string>
+    
+    <key>baseURL</key>
+    <string>http://localhost:8080</string>
 </dict>
 </plist>

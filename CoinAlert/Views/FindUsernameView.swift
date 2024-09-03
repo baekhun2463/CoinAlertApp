@@ -57,8 +57,13 @@ struct FindUsernameView: View {
             showMessage = true
             return
         }
+        
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
 
-        guard let url = URL(string: "http://localhost:8080/auth/findEmailByNickName") else {
+        guard let url = URL(string: "\(baseURL)/auth/findEmailByNickName") else {
             message = "유효하지 않은 URL"
             showMessage = true
             return

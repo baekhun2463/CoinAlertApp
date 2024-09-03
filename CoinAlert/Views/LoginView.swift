@@ -20,7 +20,7 @@ struct LoginView: View {
     @State private var loginFailed: Bool = false
     @State private var isLoading: Bool = false
     @State private var coordinator = LoginViewCoordinator()
-
+    
     var body: some View {
         NavigationStack {
             VStack(alignment: .leading, spacing: 20) {
@@ -84,7 +84,7 @@ struct LoginView: View {
                             .cornerRadius(10)
                     }
                     .padding(.top)
-
+                    
                     Button(action: {
                         startGitHubLogin()
                     }) {
@@ -97,7 +97,7 @@ struct LoginView: View {
                     }
                     .padding(.top)
                 }
-
+                
                 HStack {
                     Spacer()
                     NavigationLink(destination: FindUsernameView()) {
@@ -132,15 +132,15 @@ struct LoginView: View {
             MainTabView()
         }
     }
-
+    
     func login() {
         guard !email.isEmpty, !password.isEmpty else {
             loginFailed = true
             return
         }
-
+        
         isLoading = true
-
+        
         let loginService = LoginService()
         let loginModel = LoginModel(email: email, password: password)
         
@@ -185,21 +185,21 @@ struct LoginView: View {
         session.presentationContextProvider = coordinator
         session.start()
     }
-
+    
     func handleGitHubLoginSuccess(callbackURL: URL) {
         if let code = extractCode(from: callbackURL) {
             exchangeCodeForToken(code: code)
         }
     }
-
+    
     func extractCode(from url: URL) -> String? {
         let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         return components?.queryItems?.first { $0.name == "code" }?.value
     }
-
+    
     func exchangeCodeForToken(code: String) {
         guard let url = URL(string: "https://github.com/login/oauth/access_token") else { return }
-
+        
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
@@ -207,7 +207,7 @@ struct LoginView: View {
         let bodyString = "client_id=\(Bundle.main.object(forInfoDictionaryKey: "GitHubClientID") as? String ?? "")&client_secret=\(Bundle.main.object(forInfoDictionaryKey: "GitHubClientSecret") as? String ?? "")&code=\(code)&redirect_uri=\(Bundle.main.object(forInfoDictionaryKey: "CustomScheme") as? String ?? "")://oauth-callback"
         
         request.httpBody = bodyString.data(using: .utf8)
-
+        
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("토큰 요청 중 오류 발생: \(error.localizedDescription)")
@@ -218,7 +218,7 @@ struct LoginView: View {
                 print("데이터가 없습니다.")
                 return
             }
-
+            
             if let accessToken = String(data: data, encoding: .utf8)?.components(separatedBy: "&").first(where: { $0.contains("access_token") })?.components(separatedBy: "=").last {
                 self.fetchGitHubUser(accessToken: accessToken)
             } else {
@@ -226,7 +226,7 @@ struct LoginView: View {
             }
         }.resume()
     }
-
+    
     func fetchGitHubUser(accessToken: String) {
         guard let url = URL(string: "https://api.github.com/user") else { return }
         
@@ -239,27 +239,72 @@ struct LoginView: View {
                 // GitHub의 login을 name으로 설정
                 var updatedUser = githubUser
                 updatedUser.nickname = githubUser.login
-                print(updatedUser)
-                print(githubUser)
-                // 업데이트된 사용자 정보를 백엔드로 전송
-                self.saveUserToBackend(user: updatedUser)
+                
+                // 이메일 정보 가져오기
+                self.fetchGitHubUserEmail(accessToken: accessToken, user: updatedUser)
             }
         }.resume()
     }
 
+    // GitHub 사용자 이메일 가져오기 함수
+    func fetchGitHubUserEmail(accessToken: String, user: GitHubUser) {
+        guard let emailURL = URL(string: "https://api.github.com/user/emails") else { return }
 
+        var emailRequest = URLRequest(url: emailURL)
+        emailRequest.setValue("token \(accessToken)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: emailRequest) { emailData, emailResponse, emailError in
+            guard let emailData = emailData, emailError == nil else {
+                print("이메일 정보 요청 중 오류 발생: \(emailError?.localizedDescription ?? "알 수 없는 오류")")
+                return
+            }
+
+            do {
+                let emailArray = try JSONDecoder().decode([GitHubEmail].self, from: emailData)
+                if let primaryEmail = emailArray.first(where: { $0.primary })?.email {
+                    var updatedUser = user
+                    updatedUser.email = primaryEmail
+                    
+                    print("User with email: \(updatedUser)")
+                    print("ID Type: \(type(of: updatedUser.id))")
+
+                    
+                    // 업데이트된 사용자 정보를 백엔드로 전송
+                    self.saveUserToBackend(user: updatedUser)
+                } else {
+                    print("기본 이메일을 찾을 수 없습니다.")
+                }
+            } catch {
+                print("이메일 정보 파싱 중 오류 발생: \(error.localizedDescription)")
+            }
+        }.resume()
+    }
+
+    
+    
     func saveUserToBackend(user: GitHubUser) {
-        guard let url = URL(string: "http://localhost:8080/auth/github-login") else { return }
+        // Info.plist에서 baseURL 가져오기
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
+        
+        guard let url = URL(string: "\(baseURL)/auth/github-login") else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+//        // 백엔드로 전송할 사용자 정보에 oAuth2Id 포함
+//        var userToSave = user
+//        userToSave.oAuth2Id = user.id  // GitHub ID를 oAuth2Id로 설정
+        
         request.httpBody = try? JSONEncoder().encode(user)
         
         URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data else { return }
             if let response = response as? HTTPURLResponse, response.statusCode == 200 {
-                if let responseObject = try? JSONDecoder().decode(LoginResponse.self, from: data) {
+                if let responseObject = try? JSONDecoder().decode(JwtResponse.self, from: data) {
                     saveJWTToKeychain(token: responseObject.jwt)
                     DispatchQueue.main.async {
                         self.isLoggedIn = true
@@ -270,6 +315,7 @@ struct LoginView: View {
             }
         }.resume()
     }
+
     
     // JWT를 키체인에 저장하는 함수
     func saveJWTToKeychain(token: String) {
@@ -298,11 +344,17 @@ struct GitHubUser: Codable {
     let id: Int
     let login: String
     var nickname: String?
-    let email: String?
+    var email: String?
     let avatar_url: String?
 }
 
-struct LoginResponse: Codable {
+struct GitHubEmail: Codable {
+    let email: String
+    let primary: Bool
+    let verified: Bool
+}
+
+struct JwtResponse: Codable {
     let jwt: String
 }
 

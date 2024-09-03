@@ -112,7 +112,12 @@ struct ResetPasswordView: View {
         
         let resetDetails = ["email": email, "password": password]
         
-        guard let url = URL(string: "http://localhost:8080/auth/reset-password") else {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
+        
+        guard let url = URL(string: "\(baseURL)/auth/reset-password") else {
             print("유효하지 않은 URL")
             self.resetFailed = true
             return

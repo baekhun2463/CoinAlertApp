@@ -43,10 +43,6 @@ struct LogoutView: View {
     func logout() {
         // JWT를 키체인에서 삭제하는 로직
         deleteJWTFromKeychain()
-
-        // 로그인 상태 변경
-        authToken = nil
-        isLoggedIn = false
     }
     
     func deleteJWTFromKeychain() {
@@ -57,7 +53,10 @@ struct LogoutView: View {
         
         let status = SecItemDelete(query as CFDictionary)
         if status == errSecSuccess {
+            authToken = nil
+            isLoggedIn = false
             print("JWT 삭제 성공")
+            
         } else {
             print("JWT 삭제 실패: \(status)")
         }

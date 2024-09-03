@@ -140,7 +140,12 @@ struct SignUpView: View {
         
         let newUser = User(nickname: nickname, email: email, password: password)
         
-        guard let url = URL(string: "http://localhost:8080/auth/register") else {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
+        
+        guard let url = URL(string: "\(baseURL)/auth/register") else {
             errorMessage = "유효하지 않은 URL"
             return
         }

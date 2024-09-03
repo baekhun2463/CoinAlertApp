@@ -8,9 +8,12 @@
 import Foundation
 
 class AlertService {
-    private let baseURL = "http://localhost:8080" // 서버 주소로 변경하세요
 
     func fetchAlerts(completion: @escaping (Result<[PriceData], Error>) -> Void) {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
         guard let url = URL(string: "\(baseURL)/alerts") else {
             completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return
@@ -37,6 +40,10 @@ class AlertService {
     }
 
     func deleteAlert(id: Int64, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
         guard let url = URL(string: "\(baseURL)/alerts/\(id)") else {
             completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return

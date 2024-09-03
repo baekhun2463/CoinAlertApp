@@ -1,4 +1,5 @@
 import SwiftUI
+import Security
 
 struct DeleteAccountView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
@@ -7,46 +8,56 @@ struct DeleteAccountView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("계정 탈퇴")
-                .font(.largeTitle)
-                .bold()
-                .padding(.top)
-            
-            Text("계정을 탈퇴하면 복구할 수 없습니다. 정말로 탈퇴하시겠습니까?")
-                .foregroundColor(.red)
-                .multilineTextAlignment(.center)
-                .padding()
-            
-            if let errorMessage = errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-            }
-            
-            Button(action: {
-                deleteAccount()
-            }) {
+        NavigationStack {
+            VStack(spacing: 20) {
                 Text("계정 탈퇴")
-                    .frame(maxWidth: .infinity)
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.top)
+                
+                Text("계정을 탈퇴하면 복구할 수 없습니다. 정말로 탈퇴하시겠습니까?")
+                    .foregroundColor(.red)
+                    .multilineTextAlignment(.center)
                     .padding()
-                    .background(Color.red)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                
+                if let errorMessage = errorMessage {
+                    Text(errorMessage)
+                        .foregroundColor(.red)
+                }
+                
+                Button(action: {
+                    deleteAccount()
+                }) {
+                    Text("계정 탈퇴")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.red)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+                .padding(.top, 20)
+                
+                Spacer()
             }
-            .padding(.top, 20)
-            
-            Spacer()
-        }
-        .padding()
-        .navigationDestination(isPresented: $accountDeleted) {
-            LoginView()
+            .padding()
+            .navigationDestination(isPresented: $accountDeleted) {
+                LoginView()
+            }
         }
     }
 
     func deleteAccount() {
-        guard let token = authToken else { return }
+        guard let token = getJWTFromKeychain() else { return }
+        
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
+        
+        print("Base URL: \(baseURL)")
+        print(token)
 
-        guard let url = URL(string: "http://localhost:8080/auth/deleteAccount") else {
+        guard let url = URL(string: "\(baseURL)/auth/deleteAccount") else {
             errorMessage = "유효하지 않은 URL"
             return
         }
@@ -75,6 +86,7 @@ struct DeleteAccountView: View {
                     self.isLoggedIn = false
                     self.authToken = nil
                     self.accountDeleted = true
+                    deleteJWTFromKeychain()
                 }
             } else {
                 DispatchQueue.main.async {
@@ -85,8 +97,43 @@ struct DeleteAccountView: View {
     }
 }
 
+func getJWTFromKeychain() -> String? {
+    let query: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrAccount as String: "authToken",
+        kSecReturnData as String: kCFBooleanTrue!,
+        kSecMatchLimit as String: kSecMatchLimitOne
+    ]
+    
+    var item: CFTypeRef?
+    let status = SecItemCopyMatching(query as CFDictionary, &item)
+    
+    if status == errSecSuccess, let data = item as? Data {
+        return String(data: data, encoding: .utf8)
+    } else {
+        print("JWT 가져오기 실패: \(status)")
+        return nil
+    }
+}
+
+func deleteJWTFromKeychain() {
+    let query: [String: Any] = [
+        kSecClass as String: kSecClassGenericPassword,
+        kSecAttrAccount as String: "authToken"
+    ]
+    
+    let status = SecItemDelete(query as CFDictionary)
+    if status == errSecSuccess {
+        print("JWT 삭제 성공")
+    } else {
+        print("JWT 삭제 실패: \(status)")
+    }
+}
+
+
 struct DeleteAccountView_Previews: PreviewProvider {
     static var previews: some View {
         DeleteAccountView()
     }
 }
+

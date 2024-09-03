@@ -8,10 +8,14 @@
 import Foundation
 
 class PriceDataService {
-    private let baseURL = "http://localhost:8080" // 서버의 API URL로 교체
-
+    
+    
     // PriceData를 서버에 추가하는 함수
     func addPriceData(_ priceData: PriceData, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
         guard let url = URL(string: "\(baseURL)/priceData") else {
             completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return
@@ -44,8 +48,11 @@ class PriceDataService {
         }.resume()
     }
 
-    // 서버에서 모든 PriceData를 가져오는 함수
     func fetchPriceData(completion: @escaping (Result<[PriceData], Error>) -> Void) {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
         guard let url = URL(string: "\(baseURL)/priceData") else {
             completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return

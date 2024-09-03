@@ -8,9 +8,14 @@
 import Foundation
 
 class LoginService {
-    private let baseURL = "http://localhost:8080"
+    
 
-    func validateLoginDetails(user: LoginModel, completion: @escaping (Result<LoginResponse, Error>) -> Void) {
+    func validateLoginDetails(user: LoginModel, completion: @escaping (Result<JwtResponse, Error>) -> Void) {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            print("baseURL 가져오기 실패")
+            return
+        }
+        
         guard let url = URL(string: "\(baseURL)/auth/login") else {
             completion(.failure(NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
             return
@@ -44,7 +49,7 @@ class LoginService {
             print("Response Data: \(String(data: data, encoding: .utf8) ?? "No Data")")
 
             do {
-                let loginResponse = try JSONDecoder().decode(LoginResponse.self, from: data)
+                let loginResponse = try JSONDecoder().decode(JwtResponse.self, from: data)
                 completion(.success(loginResponse))
             } catch {
                 completion(.failure(error))
