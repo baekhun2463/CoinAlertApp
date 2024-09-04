@@ -39,7 +39,7 @@ struct FindUsernameView: View {
                 if showMessage {
                     Text(message)
                         .foregroundColor(email == nil ? .red : .green)
-                        .font(.caption)
+                        .font(.title3)
                         .padding(.top)
                 }
                 
@@ -94,10 +94,10 @@ struct FindUsernameView: View {
             }
 
             if httpResponse.statusCode == 200 {
-                if let emailResponse = try? JSONDecoder().decode(EmailResponse.self, from: data) {
+                if let email = String(data: data, encoding: .utf8) {
                     DispatchQueue.main.async {
-                        self.email = emailResponse.email
-                        self.message = "아이디: \(emailResponse.email)"
+                        self.email = email
+                        self.message = "아이디: \(email)"
                         self.showMessage = true
 
                         // 로그인 뷰로 이동
@@ -124,6 +124,7 @@ struct FindUsernameView: View {
             }
         }.resume()
     }
+
 }
 
 struct EmailResponse: Codable {
