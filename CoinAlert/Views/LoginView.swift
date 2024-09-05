@@ -88,12 +88,18 @@ struct LoginView: View {
                     Button(action: {
                         startGitHubLogin()
                     }) {
-                        Text("GitHub로 로그인")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.black)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+                        HStack {
+                            Image("github-mark-white") // 여기에 GitHub 아이콘을 지정합니다.
+                                .resizable()
+                                .frame(width: 20, height: 20) // 아이콘 크기 조정
+                            Text("GitHub로 로그인")
+                                .font(.system(size: 16, weight: .semibold)) // 폰트 크기 및 굵기 설정
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.black)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                     }
                     .padding(.top)
                 }
@@ -294,10 +300,7 @@ struct LoginView: View {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-//        // 백엔드로 전송할 사용자 정보에 oAuth2Id 포함
-//        var userToSave = user
-//        userToSave.oAuth2Id = user.id  // GitHub ID를 oAuth2Id로 설정
+    
         
         request.httpBody = try? JSONEncoder().encode(user)
         
