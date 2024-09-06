@@ -20,10 +20,14 @@ struct MainTabView: View {
                     Label("알림", systemImage: "light.beacon.max")
                 }
             
-            SettingsView()
+            MyPageView()
                 .tabItem {
-                    Label("설정", systemImage: "gearshape.fill")
+                    Label("",systemImage: "person.fill")
                 }
+//            SettingsView()
+//                .tabItem {
+//                    Label("설정", systemImage: "gearshape.fill")
+//                }
         }
     }
 }
