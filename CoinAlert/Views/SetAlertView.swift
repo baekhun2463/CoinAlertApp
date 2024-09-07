@@ -12,7 +12,11 @@ struct SetAlertView: View {
     @State private var bitcoinPrice: Double?
     @State private var isLoading = true
     @State private var errorMessage: String?
-
+    
+    
+    @Environment(\.presentationMode) var presentationMode
+    var onSave: (Double) -> Void
+    
     let priceDataService = PriceDataService()
     
     var body: some View {
@@ -37,13 +41,19 @@ struct SetAlertView: View {
                     
                     Button(action: {
                         if let price = Double(alertPrice) {
-                            let newAlert = PriceData(price: bitcoinPrice, date: Date(), alertPrice: price)
-                            priceDataService.addPriceData(newAlert) { result in
+                            let dateFormatter = DateFormatter()
+                            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+                            let dateString = dateFormatter.string(from: Date())
+                            let newAlert = PriceData(price: bitcoinPrice, date: dateString, alertPrice: price)
+                            onSave(price)
+                            presentationMode.wrappedValue.dismiss()
+                            // 서버로 데이터 전송
+                            priceDataService.sendPriceDataToServer(newAlert) { result in
                                 switch result {
                                 case .success:
-                                    print("Alert successfully added.")
+                                    print("Alert successfully added to the server.")
                                 case .failure(let error):
-                                    print("Failed to add alert: \(error.localizedDescription)")
+                                    print("Failed to add alert to the server: \(error.localizedDescription)")
                                 }
                             }
                         }
@@ -66,6 +76,7 @@ struct SetAlertView: View {
         .padding()
     }
     
+    
     func fetchBitcoinPrice() {
         BitcoinPriceService().fetchBitcoinPrice { result in
             DispatchQueue.main.async {
@@ -79,4 +90,6 @@ struct SetAlertView: View {
             }
         }
     }
+    
+    
 }

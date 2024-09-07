@@ -9,32 +9,47 @@
 import SwiftUI
 
 struct AlertView: View {
-    @State private var priceDataList: [PriceData] = []
+    @State private var alertDataList: [AlertData] = []
     @State private var isLoading = true
     @State private var errorMessage: String?
     private let alertService = AlertService()
 
     var body: some View {
-        List {
-            ForEach(priceDataList, id: \.id) { priceData in
-                HStack {
-                    VStack(alignment: .leading) {
-                        Text("Price: \(priceData.price, specifier: "%.2f")")
-                        Text("Date: \(priceData.date, formatter: itemFormatter)")
-                    }
-                    .foregroundColor(priceData.isTriggered ? .red : .black) // 알림이 울리면 색상 변경
+        VStack {
+            if isLoading {
+                ProgressView("Loading...")
+            } else if let errorMessage = errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+            } else {
+                List {
+                    ForEach(alertDataList, id: \.id) { alertData in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("알람 가격 : \(alertData.alertPrice, specifier: "%.2f")")
+                                
+                                // 문자열로 받은 날짜를 Date로 변환한 후, 표시 형식으로 변환하여 보여줍니다.
+                                if let date = iso8601DateFormatter.date(from: alertData.date) {
+                                    Text("날짜 : \(displayFormatter.string(from: date))")
+                                } else {
+                                    Text("Invalid Date")
+                                }
+                            }
+                            .foregroundColor(alertData.isTriggered ? .red : .black)
 
-                    Spacer()
+                            Spacer()
 
-                    Button(action: {
-                        deleteAlert(priceData: priceData)
-                    }) {
-                        Image(systemName: "trash")
-                            .foregroundColor(.red)
+                            Button(action: {
+                                deleteAlert(alertData: alertData)
+                            }) {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                            }
+                        }
                     }
+                    .onDelete(perform: deleteItems)
                 }
             }
-            .onDelete(perform: deleteItems)
         }
         .navigationTitle("알림 내역")
         .onAppear(perform: loadAlerts)
@@ -45,7 +60,14 @@ struct AlertView: View {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let alerts):
-                    self.priceDataList = alerts
+                    self.alertDataList = alerts.map { priceData in
+                        AlertData(
+                            id: priceData.id,
+                            date: priceData.date,  // 서버에서 받은 날짜를 그대로 사용
+                            isTriggered: priceData.isTriggered,
+                            alertPrice: priceData.alertPrice
+                        )
+                    }
                     self.isLoading = false
                 case .failure(let error):
                     self.errorMessage = error.localizedDescription
@@ -55,36 +77,55 @@ struct AlertView: View {
         }
     }
 
-    private func deleteAlert(priceData: PriceData) {
-        guard let id = priceData.id else { return }
+    private func deleteAlert(alertData: AlertData) {
+        let id = alertData.id
         alertService.deleteAlert(id: id) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success:
-                    if let index = priceDataList.firstIndex(where: { $0.id == id }) {
-                        priceDataList.remove(at: index)
+                    if let index = alertDataList.firstIndex(where: { $0.id == id }) {
+                        alertDataList.remove(at: index)
                     }
                 case .failure(let error):
-                    print("Failed to delete alert: \(error.localizedDescription)")
+                    self.errorMessage = "Failed to delete alert: \(error.localizedDescription)"
                 }
             }
         }
     }
 
     private func deleteItems(offsets: IndexSet) {
-        offsets.map { priceDataList[$0] }.forEach { deleteAlert(priceData: $0) }
+        offsets.map { alertDataList[$0] }.forEach { deleteAlert(alertData: $0) }
     }
 }
 
-private let itemFormatter: DateFormatter = {
+// 서버에서 오는 ISO-8601 형식의 날짜를 변환하기 위한 DateFormatter
+private let iso8601DateFormatter: DateFormatter = {
     let formatter = DateFormatter()
-    formatter.dateStyle = .short
-    formatter.timeStyle = .short
+    formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+    formatter.timeZone = TimeZone(secondsFromGMT: 0) // UTC 시간대 설정
     return formatter
 }()
 
-struct AlertView_Previews: PreviewProvider {
-    static var previews: some View {
-        AlertView()
+// 표시할 때 사용할 DateFormatter
+private let displayFormatter: DateFormatter = {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "yyyy/MM/dd hh:mm a" // 원하는 형식으로 설정
+    formatter.locale = Locale(identifier: "en_US_POSIX") // AM/PM 형식 유지를 위해 locale 설정
+    return formatter
+}()
+
+// 서버로부터 수신한 데이터만 포함하는 모델
+struct AlertData: Codable {
+    var id: Int64
+    var date: String // 서버에서 오는 날짜 형식에 맞춰 String으로 정의
+    var isTriggered: Bool
+    var alertPrice: Double
+
+    // JSON 필드와 Swift 필드 간 매핑
+    enum CodingKeys: String, CodingKey {
+        case id
+        case date
+        case isTriggered
+        case alertPrice
     }
 }

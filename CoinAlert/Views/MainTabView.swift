@@ -7,17 +7,17 @@ struct MainTabView: View {
         TabView {
             MainView()
                 .tabItem {
-                    Label("홈", systemImage: "house.fill")
+                    Label("", systemImage: "house.fill")
                 }
             
             CommunityView()
                 .tabItem {
-                    Label("커뮤니티", systemImage:"list.bullet.clipboard.fill")
+                    Label("", systemImage:"list.bullet.clipboard.fill")
                 }
             
             AlertView()
                 .tabItem {
-                    Label("알림", systemImage: "light.beacon.max")
+                    Label("", systemImage: "light.beacon.max")
                 }
             
             MyPageView()

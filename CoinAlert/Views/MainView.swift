@@ -33,7 +33,9 @@ struct MainView: View {
                             .font(.title)
                             .foregroundColor(.green)
                         
-                        NavigationLink(destination: SetAlertView()) {
+                        NavigationLink(destination: SetAlertView(onSave: { price in
+                            alertPrice = price
+                        })) {
                             Text("알림 설정")
                                 .font(.headline)
                                 .padding()
@@ -65,6 +67,33 @@ struct MainView: View {
         .onAppear(perform: checkNotificationPermission)
     }
     
+    //여긴 나중에 수정
+    func checkPriceAlert() {
+        if let alertPrice = alertPrice, let bitcoinPrice = bitcoinPrice {
+            if bitcoinPrice.price >= alertPrice {
+                scheduleNotification(for: bitcoinPrice.price)
+                self.alertPrice = nil // 알림이 보내진 후 alertPrice 초기화
+            }
+        }
+    }
+    
+    func scheduleNotification(for currentPrice: Double) {
+        let content = UNMutableNotificationContent()
+        content.title = "비트코인 가격 알림"
+        content.body = "현재 비트코인 가격은 \(String(format: "%.0f", currentPrice))입니다."
+        content.sound = .default
+        
+        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("알림 추가 에러: \(error.localizedDescription)")
+            } else {
+                print("알림이 성공적으로 추가되었습니다.")
+            }
+        }
+    }
+    
     func fetchBitcoinPrice() {
         BitcoinPriceService().fetchBitcoinPrice { result in
             DispatchQueue.main.async {
@@ -84,7 +113,7 @@ struct MainView: View {
             fetchBitcoinPrice()
         }
     }
-
+    
     func checkNotificationPermission() {
         UNUserNotificationCenter.current().getNotificationSettings { settings in
             DispatchQueue.main.async {
