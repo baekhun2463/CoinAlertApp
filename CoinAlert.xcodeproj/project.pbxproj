@@ -98,6 +98,7 @@
 			children = (
 				0F1245572C4619490012E2D0 /* CoinAlert */,
 				0F1245662C461DB90012E2D0 /* README.md */,
+				0FD0C7F92C71EAE50074DBF6 /* .gitignore */,
 				0F1245562C4619490012E2D0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -123,7 +124,6 @@
 				0F12455C2C46194A0012E2D0 /* Assets.xcassets */,
 				0F12455E2C46194A0012E2D0 /* Preview Content */,
 				0F0F33202C47C58900BB0D05 /* AppDelegate.swift */,
-				0FD0C7F92C71EAE50074DBF6 /* .gitignore */,
 			);
 			path = CoinAlert;
 			sourceTree = "<group>";

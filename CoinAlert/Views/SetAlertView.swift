@@ -90,6 +90,4 @@ struct SetAlertView: View {
             }
         }
     }
-    
-    
 }
