@@ -195,7 +195,6 @@ struct SignUpView: View {
         let passwordTest = NSPredicate(format: "SELF MATCHES %@", passwordRegEx)
         return passwordTest.evaluate(with: pwd)
     }
-    
 
 }
 
