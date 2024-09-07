@@ -45,24 +45,7 @@ struct MyPageView: View {
                     CustomImagePicker(image: $profileImage)
                 }
                 
-                TextField("닉네임", text: $nickName)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
                 
-                Button(action: {
-                    // 저장 액션
-                }) {
-                    Text("저장")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                .padding(.top, 20)
-                
-                Spacer()
             }
             .padding()
             .navigationTitle("")
