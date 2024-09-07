@@ -196,15 +196,7 @@ struct SignUpView: View {
         return passwordTest.evaluate(with: pwd)
     }
     
-    // SHA-256 해싱 함수
-    //    func sha256(_ input: String) -> String {
-    //        guard let inputData = input.data(using: .utf8) else { return "" }
-    //        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-    //        inputData.withUnsafeBytes {
-    //            _ = CC_SHA256($0.baseAddress, CC_LONG(inputData.count), &hash)
-    //        }
-    //        return hash.map { String(format: "%02x", $0) }.joined()
-    //    }
+
 }
 
 
