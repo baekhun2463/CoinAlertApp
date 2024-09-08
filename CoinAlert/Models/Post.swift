@@ -6,24 +6,26 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-class Post {
-    @Attribute(.unique) var id: UUID = UUID()
-    @Attribute var title: String
-    @Attribute var content: String
-    @Attribute var timestamp: Date
-    @Attribute var likes: Int
-    @Attribute var comments: Int
+struct Post: Codable, Identifiable {
+    var id: Int64
+    var title: String
+    var content: String
+    var timestamp: String
+    var likes: Int
+    var commentCount: Int
     
-    @Relationship var user: User?
-
-    init(title: String, content: String, timestamp: Date, likes: Int = 0, comments: Int = 0) {
+    enum CodingKeys: String, CodingKey {
+            case id, title, content, timestamp, likes
+            case commentCount // JSON 키와 일치시킵니다.
+        }
+    
+    init(id: Int64,title: String, content: String, timestamp: String, likes: Int, commentCount: Int) {
+        self.id = id
         self.title = title
         self.content = content
         self.timestamp = timestamp
         self.likes = likes
-        self.comments = comments
+        self.commentCount = commentCount
     }
 }

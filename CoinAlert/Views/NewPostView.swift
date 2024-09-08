@@ -6,55 +6,173 @@
 //
 
 import SwiftUI
-import SwiftData
 
 struct NewPostView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
-    @Environment(\.presentationMode) var presentationMode
-    @Environment(\.modelContext) var modelContext: ModelContext
-    
+
     @State private var content: String = ""
     @State private var title: String = ""
     @State private var showAlert: Bool = false
     @State private var showLoginView: Bool = false
     @State private var errorMessage: String?
-    
-    
-    
+
     var body: some View {
         VStack {
-            TextField("Title", text: $title)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            TextField("What's on your mind?", text: $content)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
+            // 헤더 이미지 추가
+            Image("post_background")
+                .resizable()
+                .scaledToFit()
+                .frame(height: 150)
+                .overlay(
+                    Text("Create a New Post")
+                        .font(.largeTitle)
+                        .bold()
+                        .foregroundColor(.white)
+                        .shadow(radius: 5)
+                        .padding()
+                    , alignment: .bottom
+                )
+            
+            // 타이틀 입력 필드
+            VStack(alignment: .leading, spacing: 10) {
+                Text("제목")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                TextField("Enter your post title", text: $title)
+                    .padding()
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+            }
+            .padding(.top, 20)
+
+            // 컨텐츠 입력 필드
+            VStack(alignment: .leading, spacing: 10) {
+                Text("내용")
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                TextEditor(text: $content)
+                    .frame(minHeight: 200)
+                    .padding(10)
+                    .background(Color(.systemGray6))
+                    .cornerRadius(10)
+                    .padding(.horizontal)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10)
+                            .stroke(Color(.systemGray4), lineWidth: 1)
+                    )
+            }
+            .padding(.top, 10)
+
             Spacer()
+
+            // 포스트 버튼
             Button(action: {
-                let newPost = Post(title: title, content: content, timestamp: Date())
-                modelContext.insert(newPost)
-                do {
-                    try modelContext.save()
-                }catch {
-                    errorMessage = "실패 : \(error.localizedDescription)"
-                }
-                presentationMode.wrappedValue.dismiss()
+                savePost()
             }) {
                 Text("Post")
                     .font(.headline)
+                    .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
+                    .shadow(radius: 5)
             }
-            .padding()
+            .padding(.horizontal)
+            .padding(.bottom, 20)
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("Error"), message: Text(errorMessage ?? "Something went wrong"), dismissButton: .default(Text("OK")))
+            }
         }
-        .navigationBarTitle("New Post", displayMode: .inline)
+        .background(Color(.systemBackground))
+        .navigationBarTitle("새 글 작성", displayMode: .inline)
     }
+
+    // POST 저장 로직
+    private func savePost() {
+        guard !title.isEmpty, !content.isEmpty else {
+            errorMessage = "제목이나 내용이 비었습니다."
+            showAlert = true
+            return
+        }
+        
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            return
+        }
+        
+        guard let token = getJWTFromKeychain() else { return }
+
+        let postData = PostData(title: title, content: content)
+
+        guard let url = URL(string: "\(baseURL)/posts/newPost") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        
+        do {
+            let jsonData = try JSONEncoder().encode(postData)
+            request.httpBody = jsonData
+        } catch {
+            errorMessage = "Failed to encode post data."
+            showAlert = true
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to save post: \(error.localizedDescription)"
+                    self.showAlert = true
+                }
+                return
+            }
+            
+            if let response = response as? HTTPURLResponse, response.statusCode == 201 {
+                // 성공적으로 저장되었을 때 처리
+                DispatchQueue.main.async {
+                    self.title = ""
+                    self.content = ""
+                    // 성공 메시지 표시
+                }
+            } else {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to save post: Unexpected response."
+                    self.showAlert = true
+                }
+            }
+        }.resume()
+    }
+    
+    private func getJWTFromKeychain() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: "authToken",
+            kSecReturnData as String: kCFBooleanTrue!,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        
+        if status == errSecSuccess, let data = item as? Data {
+            return String(data: data, encoding: .utf8)
+        } else {
+            print("JWT 가져오기 실패: \(status)")
+            return nil
+        }
+    }
+}
+
+struct PostData: Encodable {
+    let title: String
+    let content: String
 }
 
 
 #Preview {
     NewPostView()
-        .modelContainer(for: Post.self, inMemory: true)
 }
