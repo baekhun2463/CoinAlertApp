@@ -7,7 +7,8 @@ struct CommunityView: View {
     var body: some View {
         NavigationView {
             List {
-                ForEach(posts) { post in
+                ForEach(posts.indices, id: \.self) { index in
+                    let post = posts[index]
                     VStack(alignment: .leading) {
                         HStack {
                             Image(systemName: "person.circle")
@@ -31,8 +32,11 @@ struct CommunityView: View {
                                 Text("\(post.commentCount)")
                             }
                             Spacer()
-                            Button(action: {}) {
-                                Image(systemName: "heart")
+                            Button(action: {
+                                toggleLike(for: index)
+                            }) {
+                                Image(systemName: post.isLiked ?? false ? "heart.fill" : "heart")
+                                    .foregroundColor(post.isLiked ?? false ? .red : .gray)
                                 Text("\(post.likes)")
                             }
                         }
@@ -51,19 +55,56 @@ struct CommunityView: View {
         .onAppear(perform: fetchPosts) // 뷰가 나타날 때 게시글을 가져옵니다.
     }
     
-    func fetchPosts() {
-        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
-            return
-        }
+    func toggleLike(for index: Int) {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
+        guard let url = URL(string: "\(baseURL)/posts/toggleLike") else { return }
+        guard let token = getJWTFromKeychain() else { return }
         
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // Prepare data to be sent
+        var post = posts[index]
+        let isLiked = !(post.isLiked ?? false)
+        post.isLiked = isLiked
+        
+        let postData: [String: Any] = [
+            "postId": post.id,
+            "isLiked": isLiked
+        ]
+        
+        request.httpBody = try? JSONSerialization.data(withJSONObject: postData)
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to toggle like: \(error.localizedDescription)"
+                }
+                return
+            }
+            
+            DispatchQueue.main.async {
+                // Update the local state
+                if isLiked {
+                    self.posts[index].likes += 1
+                } else {
+                    self.posts[index].likes -= 1
+                }
+                self.posts[index].isLiked = isLiked
+            }
+        }.resume()
+    }
+    
+    func fetchPosts() {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
         guard let url = URL(string: "\(baseURL)/posts/getPosts") else {
             self.errorMessage = "Invalid URL"
             return
         }
         
-        guard let token = getJWTFromKeychain() else {
-            return
-        }
+        guard let token = getJWTFromKeychain() else { return }
         
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -88,10 +129,6 @@ struct CommunityView: View {
             do {
                 let posts = try JSONDecoder().decode([Post].self, from: data)
                 DispatchQueue.main.async {
-                    if let dataString = String(data: data, encoding: .utf8) {
-                        print("응답 데이터: \(dataString)")
-                    }
-
                     self.posts = posts
                 }
             } catch {
