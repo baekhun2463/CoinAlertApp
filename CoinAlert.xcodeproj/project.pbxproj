@@ -38,7 +38,8 @@
 		0F349BAA2C4CFF8D001AC264 /* NewPostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F349BA92C4CFF8D001AC264 /* NewPostView.swift */; };
 		0F47E6332C6F223C003D0E58 /* PriceDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47E6322C6F223C003D0E58 /* PriceDataService.swift */; };
 		0F47E6352C6F2840003D0E58 /* AlertService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F47E6342C6F2840003D0E58 /* AlertService.swift */; };
-		0FB3F5352C8C80A500E97404 /* PostView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FB3F5342C8C80A500E97404 /* PostView.swift */; };
+		0F655E3D2C8FE530003803F1 /* PostDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F655E3C2C8FE530003803F1 /* PostDetailView.swift */; };
+		0F655E3F2C8FE65C003803F1 /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F655E3E2C8FE65C003803F1 /* Comment.swift */; };
 		0FC1CD692C8AC25400D6F041 /* MyPageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC1CD682C8AC25400D6F041 /* MyPageView.swift */; };
 		0FD0C7FA2C71EAE50074DBF6 /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 0FD0C7F92C71EAE50074DBF6 /* .gitignore */; };
 		0FE235F62C4E2E77004ECE06 /* SwiftJWT in Frameworks */ = {isa = PBXBuildFile; productRef = 0FE235F52C4E2E77004ECE06 /* SwiftJWT */; };
@@ -78,7 +79,8 @@
 		0F47E6322C6F223C003D0E58 /* PriceDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDataService.swift; sourceTree = "<group>"; };
 		0F47E6342C6F2840003D0E58 /* AlertService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertService.swift; sourceTree = "<group>"; };
 		0F5B070B2C4E24B8004C578D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		0FB3F5342C8C80A500E97404 /* PostView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostView.swift; sourceTree = "<group>"; };
+		0F655E3C2C8FE530003803F1 /* PostDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostDetailView.swift; sourceTree = "<group>"; };
+		0F655E3E2C8FE65C003803F1 /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
 		0FC1CD682C8AC25400D6F041 /* MyPageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageView.swift; sourceTree = "<group>"; };
 		0FD0C7F92C71EAE50074DBF6 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -158,7 +160,7 @@
 				0F349B9E2C4CCF00001AC264 /* LogoutView.swift */,
 				0F349BA92C4CFF8D001AC264 /* NewPostView.swift */,
 				0FC1CD682C8AC25400D6F041 /* MyPageView.swift */,
-				0FB3F5342C8C80A500E97404 /* PostView.swift */,
+				0F655E3C2C8FE530003803F1 /* PostDetailView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -171,6 +173,7 @@
 				0F349BA12C4CF092001AC264 /* User.swift */,
 				0F349BA72C4CFF35001AC264 /* Post.swift */,
 				0F2B234B2C6B4B0900668E03 /* LoginModel.swift */,
+				0F655E3E2C8FE65C003803F1 /* Comment.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -293,13 +296,14 @@
 				0F349B9B2C4CCEBC001AC264 /* NotificationSettingsView.swift in Sources */,
 				0F0F33252C47CDE800BB0D05 /* AlertView.swift in Sources */,
 				0F0F33042C47AB6F00BB0D05 /* PriceData.swift in Sources */,
+				0F655E3D2C8FE530003803F1 /* PostDetailView.swift in Sources */,
 				0F0F33062C47AB7F00BB0D05 /* BinancePrice.swift in Sources */,
 				0F349B952C4CCADA001AC264 /* FindUsernameView.swift in Sources */,
 				0FC1CD692C8AC25400D6F041 /* MyPageView.swift in Sources */,
 				0F12456A2C462F230012E2D0 /* SplashView.swift in Sources */,
+				0F655E3F2C8FE65C003803F1 /* Comment.swift in Sources */,
 				0F1245722C4634020012E2D0 /* MainTabView.swift in Sources */,
 				0F349B9F2C4CCF00001AC264 /* LogoutView.swift in Sources */,
-				0FB3F5352C8C80A500E97404 /* PostView.swift in Sources */,
 				0F349B972C4CCAFD001AC264 /* ResetPasswordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

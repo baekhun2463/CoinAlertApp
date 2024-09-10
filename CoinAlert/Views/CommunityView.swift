@@ -3,6 +3,7 @@ import SwiftUI
 struct CommunityView: View {
     @State private var errorMessage: String?
     @State var posts: [Post] = []
+    @State private var selectedPost: Post? = nil // 선택된 포스트
     
     var body: some View {
         NavigationView {
@@ -17,7 +18,7 @@ struct CommunityView: View {
                             VStack(alignment: .leading) {
                                 Text(post.title)
                                     .font(.headline)
-                                Text(post.timestamp) // 그대로 문자열로 사용
+                                Text(post.timestamp)
                                     .font(.subheadline)
                                     .foregroundColor(.gray)
                             }
@@ -27,18 +28,30 @@ struct CommunityView: View {
                         Text(post.content)
                             .padding(.vertical, 5)
                         HStack {
-                            Button(action: {}) {
-                                Image(systemName: "bubble.right")
-                                Text("\(post.commentCount)")
-                            }
-                            Spacer()
+                            // 댓글 버튼
                             Button(action: {
-                                toggleLike(for: index)
+                                commentButtonTapped(for: index) // 댓글 버튼 눌림
                             }) {
-                                Image(systemName: post.isLiked ?? false ? "heart.fill" : "heart")
-                                    .foregroundColor(post.isLiked ?? false ? .red : .gray)
-                                Text("\(post.likes)")
+                                HStack {
+                                    Image(systemName: "bubble.right")
+                                    Text("\(post.commentCount)")
+                                }
                             }
+                            .buttonStyle(BorderlessButtonStyle()) // 개별 버튼 터치 영역 설정
+
+                            Spacer()
+
+                            // 좋아요 버튼
+                            Button(action: {
+                                toggleLike(for: index) // 좋아요 버튼 눌림
+                            }) {
+                                HStack {
+                                    Image(systemName: post.isLiked ?? false ? "heart.fill" : "heart")
+                                        .foregroundColor(post.isLiked ?? false ? .red : .gray)
+                                    Text("\(post.likes)")
+                                }
+                            }
+                            .buttonStyle(BorderlessButtonStyle()) // 개별 버튼 터치 영역 설정
                         }
                         .font(.subheadline)
                         .foregroundColor(.gray)
@@ -51,8 +64,11 @@ struct CommunityView: View {
                 Image(systemName: "square.and.pencil")
                     .imageScale(.large)
             })
+            .sheet(item: $selectedPost) { post in
+                PostDetailView(post: post)
+            }
         }
-        .onAppear(perform: fetchPosts) // 뷰가 나타날 때 게시글을 가져옵니다.
+        .onAppear(perform: fetchPosts)
     }
     
     func toggleLike(for index: Int) {
@@ -97,6 +113,11 @@ struct CommunityView: View {
         }.resume()
     }
     
+    func commentButtonTapped(for index: Int) {
+        // Comment 버튼이 눌렸을 때 동작
+        selectedPost = posts[index] // 모달을 띄울 포스트를 설정
+    }
+
     func fetchPosts() {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
         guard let url = URL(string: "\(baseURL)/posts/getPosts") else {

@@ -8,14 +8,16 @@ struct Post: Decodable, Identifiable {
     var likes: Int
     var commentCount: Int
     var isLiked: Bool?
-    var comments: [PostComment]  // 'Comment' 대신 'PostComment'로 변경합니다.
-    
+    var comments: [PostComment]
+
     enum CodingKeys: String, CodingKey {
-        case id, title, content, timestamp, likes, commentCount, isLiked, comments
+        case id, title, content, timestamp, likes
+        case commentCount // JSON 키와 일치시킵니다.
+        case isLiked
+        case comments
     }
-    
-    // 기본 생성자 추가
-    init(id: Int64, title: String, content: String, timestamp: String, likes: Int, commentCount: Int, isLiked: Bool?, comments: [PostComment]) {
+
+    init(id: Int64, title: String, content: String, timestamp: String, likes: Int, commentCount: Int, isLiked: Bool, comments: [PostComment]) {
         self.id = id
         self.title = title
         self.content = content
@@ -27,9 +29,10 @@ struct Post: Decodable, Identifiable {
     }
 }
 
-// Comment 구조체의 이름을 'PostComment'로 변경하여 모호성 문제를 해결합니다.
 struct PostComment: Identifiable, Decodable {
     var id: Int
     var content: String
+    var author: String
     var likes: Int
+    var isLiked: Bool
 }
