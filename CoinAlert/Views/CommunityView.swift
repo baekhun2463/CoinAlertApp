@@ -71,6 +71,7 @@ struct CommunityView: View {
         .onAppear(perform: fetchPosts)
     }
     
+    
     func toggleLike(for index: Int) {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
         guard let url = URL(string: "\(baseURL)/posts/toggleLike") else { return }
@@ -136,6 +137,7 @@ struct CommunityView: View {
             if let error = error {
                 DispatchQueue.main.async {
                     self.errorMessage = "Failed to load posts: \(error.localizedDescription)"
+                    print("Error: \(error.localizedDescription)")
                 }
                 return
             }
@@ -143,8 +145,14 @@ struct CommunityView: View {
             guard let data = data else {
                 DispatchQueue.main.async {
                     self.errorMessage = "No data returned"
+                    print("Error: No data returned")
                 }
                 return
+            }
+            
+            // 수신한 데이터를 JSON 문자열로 변환하여 로그 출력
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Received JSON string: \(jsonString)")
             }
             
             do {
@@ -152,13 +160,21 @@ struct CommunityView: View {
                 DispatchQueue.main.async {
                     self.posts = posts
                 }
+            } catch let DecodingError.dataCorrupted(context) {
+                print("Data corrupted: \(context.debugDescription)")
+            } catch let DecodingError.keyNotFound(key, context) {
+                print("Key '\(key)' not found: \(context.debugDescription)")
+            } catch let DecodingError.typeMismatch(type, context) {
+                print("Type mismatch for type '\(type)': \(context.debugDescription)")
+            } catch let DecodingError.valueNotFound(value, context) {
+                print("Value '\(value)' not found: \(context.debugDescription)")
             } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Failed to decode posts: \(error.localizedDescription)"
-                }
+                print("Decoding error: \(error.localizedDescription)")
             }
+
         }.resume()
     }
+
     
     private func getJWTFromKeychain() -> String? {
         let query: [String: Any] = [

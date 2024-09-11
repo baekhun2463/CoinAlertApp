@@ -29,10 +29,12 @@ struct Post: Decodable, Identifiable {
     }
 }
 
-struct PostComment: Identifiable, Decodable {
+struct PostComment: Identifiable, Codable {
     var id: Int
     var content: String
     var author: String
     var likes: Int
-    var isLiked: Bool
+    var liked: Bool
+    var post_id: Int64 // postId 필드 추가
+    var member_id: Int64 // memberId 필드 추가
 }

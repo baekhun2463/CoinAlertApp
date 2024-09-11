@@ -5,9 +5,11 @@ struct PostDetailView: View {
     @State private var comments: [PostComment] = []
     @State private var newComment: String = ""
     @State private var nickName: String = "" // 닉네임을 서버에서 가져오기 때문에 초기값은 빈 문자열
+    @State private var member_id: Int64 = 0
     @State private var errorMessage: String? // 오류 메시지 상태 추가
 
 
+    
     var body: some View {
         VStack {
             VStack(alignment: .leading) {
@@ -34,8 +36,8 @@ struct PostDetailView: View {
                                     toggleCommentLike(for: index)
                                 }) {
                                     HStack {
-                                        Image(systemName: comment.isLiked ? "heart.fill" : "heart")
-                                            .foregroundColor(comment.isLiked ? .red : .gray)
+                                        Image(systemName: comment.liked ? "heart.fill" : "heart")
+                                            .foregroundColor(comment.liked ? .red : .gray)
                                         Text("\(comment.likes)") // 좋아요 수 표시
                                             .font(.caption)
                                             .foregroundColor(.gray)
@@ -97,6 +99,11 @@ struct PostDetailView: View {
                 return
             }
 
+            // JSON 데이터를 문자열로 변환하여 출력
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Received JSON data: \(jsonString)")
+            }
+
             do {
                 let fetchedComments = try JSONDecoder().decode([PostComment].self, from: data)
                 DispatchQueue.main.async {
@@ -109,9 +116,10 @@ struct PostDetailView: View {
     }
 
 
+
     func addComment() {
         guard !newComment.isEmpty else { return }
-        let newCommentObj = PostComment(id: comments.count + 1, content: newComment, author: nickName, likes: 0, isLiked: false)
+        let newCommentObj = PostComment(id: comments.count + 1, content: newComment, author: nickName, likes: 0, liked: false, post_id: post.id, member_id: member_id)
         comments.append(newCommentObj)
         newComment = ""
         // 추가: 백엔드에 댓글을 저장하는 API 호출
@@ -119,8 +127,8 @@ struct PostDetailView: View {
     }
 
     func toggleCommentLike(for index: Int) {
-        comments[index].isLiked.toggle()
-        if comments[index].isLiked {
+        comments[index].liked.toggle()
+        if comments[index].liked {
             comments[index].likes += 1
         } else {
             comments[index].likes -= 1
@@ -164,6 +172,7 @@ struct PostDetailView: View {
 
                 if let data = data, let result = try? JSONDecoder().decode(NicknameResponse.self, from: data) {
                     nickName = result.nickname
+                    member_id = result.memberId
                 } else {
                     errorMessage = "데이터를 파싱하는 데 실패했습니다."
                 }
@@ -172,7 +181,6 @@ struct PostDetailView: View {
     }
 
     func saveCommentToBackend(comment: PostComment) {
-        // 백엔드에 댓글을 저장하는 로직
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
         guard let url = URL(string: "\(baseURL)/comments/newComment") else { return }
         guard let token = getJWTFromKeychain() else { return }
@@ -182,20 +190,43 @@ struct PostDetailView: View {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        let commentData: [String: Any] = [
-            "postId": post.id,
-            "content": comment.content,
-            "author": comment.author
-        ]
-        request.httpBody = try? JSONSerialization.data(withJSONObject: commentData)
+        // DTO 생성
+        let commentDTO = CommentDTO(
+            postId: comment.post_id,
+            memberId: comment.member_id,
+            content: comment.content,
+            author: comment.author,
+            likes: comment.likes
+        )
 
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("Failed to save comment: \(error.localizedDescription)")
-                return
+        let encoder = JSONEncoder()
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+
+        do {
+            let jsonData = try encoder.encode(commentDTO)
+
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("Sending JSON data to backend: \(jsonString)")
             }
-        }.resume()
+
+            request.httpBody = jsonData
+
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                if let error = error {
+                    print("Failed to save comment: \(error.localizedDescription)")
+                    return
+                }
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("Response status code: \(httpResponse.statusCode)")
+                }
+            }.resume()
+        } catch {
+            print("Failed to encode comment: \(error.localizedDescription)")
+        }
     }
+
+
+
 
     func updateCommentLikeInBackend(comment: PostComment) {
         // 백엔드에 댓글의 좋아요 상태를 저장하는 로직
@@ -210,7 +241,7 @@ struct PostDetailView: View {
 
         let likeData: [String: Any] = [
             "commentId": comment.id,
-            "isLiked": comment.isLiked
+            "isLiked": comment.liked
         ]
         request.httpBody = try? JSONSerialization.data(withJSONObject: likeData)
 
@@ -241,3 +272,12 @@ struct PostDetailView: View {
         }
     }
 }
+
+struct CommentDTO: Codable {
+    let postId: Int64
+    let memberId: Int64
+    let content: String
+    let author: String
+    let likes: Int
+}
+

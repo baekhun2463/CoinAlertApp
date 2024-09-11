@@ -146,6 +146,7 @@ struct MyPageView: View {
 
 struct NicknameResponse: Codable {
     let nickname: String
+    let memberId: Int64
 }
 
 struct CustomImagePicker: UIViewControllerRepresentable {
