@@ -119,7 +119,15 @@ struct PostDetailView: View {
 
     func addComment() {
         guard !newComment.isEmpty else { return }
-        let newCommentObj = PostComment(id: comments.count + 1, content: newComment, author: nickName, likes: 0, liked: false, post_id: post.id, member_id: member_id)
+        let newCommentObj = PostComment(
+            id: comments.count + 1,
+            content: newComment,
+            author: nickName,
+            likes: 0,
+            liked: false
+        )
+
+
         comments.append(newCommentObj)
         newComment = ""
         // 추가: 백엔드에 댓글을 저장하는 API 호출
@@ -190,25 +198,9 @@ struct PostDetailView: View {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-        // DTO 생성
-        let commentDTO = CommentDTO(
-            postId: comment.post_id,
-            memberId: comment.member_id,
-            content: comment.content,
-            author: comment.author,
-            likes: comment.likes
-        )
-
+        // JSONEncoder를 사용해 PostComment 객체를 JSON 데이터로 변환
         let encoder = JSONEncoder()
-        encoder.keyEncodingStrategy = .convertToSnakeCase
-
-        do {
-            let jsonData = try encoder.encode(commentDTO)
-
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("Sending JSON data to backend: \(jsonString)")
-            }
-
+        if let jsonData = try? encoder.encode(comment) {
             request.httpBody = jsonData
 
             URLSession.shared.dataTask(with: request) { data, response, error in
@@ -216,12 +208,10 @@ struct PostDetailView: View {
                     print("Failed to save comment: \(error.localizedDescription)")
                     return
                 }
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("Response status code: \(httpResponse.statusCode)")
-                }
+                // 필요하면 응답 데이터를 처리할 수 있습니다.
             }.resume()
-        } catch {
-            print("Failed to encode comment: \(error.localizedDescription)")
+        } else {
+            print("Failed to encode comment")
         }
     }
 

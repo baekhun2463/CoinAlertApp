@@ -11,10 +11,7 @@ struct Post: Decodable, Identifiable {
     var comments: [PostComment]
 
     enum CodingKeys: String, CodingKey {
-        case id, title, content, timestamp, likes
-        case commentCount // JSON 키와 일치시킵니다.
-        case isLiked
-        case comments
+        case id, title, content, timestamp, likes, commentCount, isLiked, comments
     }
 
     init(id: Int64, title: String, content: String, timestamp: String, likes: Int, commentCount: Int, isLiked: Bool, comments: [PostComment]) {
@@ -35,6 +32,9 @@ struct PostComment: Identifiable, Codable {
     var author: String
     var likes: Int
     var liked: Bool
-    var post_id: Int64 // postId 필드 추가
-    var member_id: Int64 // memberId 필드 추가
+
+    enum CodingKeys: String, CodingKey {
+        case id, content, author, likes, liked
+    }
 }
+
