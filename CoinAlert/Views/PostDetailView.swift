@@ -124,7 +124,8 @@ struct PostDetailView: View {
             content: newComment,
             author: nickName,
             likes: 0,
-            liked: false
+            liked: false,
+            postId: post.id
         )
 
 
@@ -202,6 +203,11 @@ struct PostDetailView: View {
         let encoder = JSONEncoder()
         if let jsonData = try? encoder.encode(comment) {
             request.httpBody = jsonData
+
+            // 디버깅을 위해 JSON 데이터 출력
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("JSON Data to be sent: \(jsonString)")
+            }
 
             URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {

@@ -32,9 +32,10 @@ struct PostComment: Identifiable, Codable {
     var author: String
     var likes: Int
     var liked: Bool
+    var postId: Int64? // `postId`로 이름 변경
 
     enum CodingKeys: String, CodingKey {
         case id, content, author, likes, liked
+        case postId = "post_id" // JSON 키를 매핑
     }
 }
-
