@@ -1,20 +1,17 @@
-//
-//  MyPageView.swift
-//  CoinAlert
-//
-//  Created by 백지훈 on 9/6/24.
-//
-
 import SwiftUI
 import PhotosUI
 
 struct MyPageView: View {
     @State private var nickName: String = "" // 닉네임을 서버에서 가져오기 때문에 초기값은 빈 문자열
     @State private var email: String = ""
+    @State private var avatarUrl: String = ""
     @State private var profileImage: UIImage?
     @State private var showImagePicker: Bool = false
     @State private var errorMessage: String? // 오류 메시지 상태 추가
     @AppStorage("authToken") var authToken: String?
+    
+    @State private var userPosts: [Post] = [] // 사용자가 작성한 게시글
+    @State private var userComments: [PostComment] = [] // 사용자가 남긴 댓글
 
     var body: some View {
         NavigationStack {
@@ -60,8 +57,43 @@ struct MyPageView: View {
                 
                 ScrollView {
                     VStack(spacing: 20) {
-                        // 여기에 추가적인 콘텐츠를 넣을 수 있습니다
-                        // 예를 들어, 사용자의 세부 정보, 설정 옵션 등을 추가할 수 있습니다.
+                        // 사용자 게시글 목록
+                        Text("내가 작성한 게시글")
+                            .font(.headline)
+                            .padding(.top)
+
+                        ForEach(userPosts) { post in
+                            VStack(alignment: .leading) {
+                                Text(post.title)
+                                    .font(.headline)
+                                Text(post.content)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                Text(post.timestamp)
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                Divider()
+                            }
+                            .padding(.horizontal)
+                        }
+
+                        // 사용자 댓글 목록
+                        Text("내가 남긴 댓글")
+                            .font(.headline)
+                            .padding(.top)
+
+                        ForEach(userComments) { comment in
+                            VStack(alignment: .leading) {
+                                Text(comment.content)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                Text("Likes: \(comment.likes)")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                Divider()
+                            }
+                            .padding(.horizontal)
+                        }
                     }
                     .padding()
                 }
@@ -77,12 +109,12 @@ struct MyPageView: View {
                 }
             }
             .onAppear {
-                fetchNickname() // 뷰가 나타날 때 닉네임 가져오기
+                fetchUserData() // 뷰가 나타날 때 사용자 데이터를 가져오기
             }
         }
     }
     
-    private func fetchNickname() {
+    private func fetchUserData() {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
             errorMessage = "서버 URL을 가져오는 데 실패했습니다."
             return
@@ -93,7 +125,7 @@ struct MyPageView: View {
             return
         }
         
-        guard let url = URL(string: "\(baseURL)/auth/getNickname") else {
+        guard let url = URL(string: "\(baseURL)/auth/getMemberData") else {
             errorMessage = "잘못된 URL입니다."
             return
         }
@@ -111,12 +143,22 @@ struct MyPageView: View {
                 }
 
                 guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    errorMessage = "닉네임을 가져오는 데 실패했습니다."
+                    errorMessage = "사용자 데이터를 가져오는 데 실패했습니다."
                     return
                 }
 
-                if let data = data, let result = try? JSONDecoder().decode(NicknameResponse.self, from: data) {
+                if let data = data, let result = try? JSONDecoder().decode(UserDataResponse.self, from: data) {
                     nickName = result.nickname
+                    
+                    // avatar_url이 nil이 아닌 경우에만 값을 설정
+                    if let avatar = result.avatar_url {
+                        avatarUrl = avatar
+                    } else {
+                        avatarUrl = "기본 이미지 URL" // 기본 이미지를 설정하거나 빈 문자열로 설정
+                    }
+                    
+                    userPosts = result.posts
+                    userComments = result.comments
                 } else {
                     errorMessage = "데이터를 파싱하는 데 실패했습니다."
                 }
@@ -144,10 +186,14 @@ struct MyPageView: View {
     }
 }
 
-struct NicknameResponse: Codable {
+struct UserDataResponse: Decodable {
     let nickname: String
-    let memberId: Int64
+    let avatar_url: String?
+    let posts: [Post]
+    let comments: [PostComment]
+
 }
+
 
 struct CustomImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?

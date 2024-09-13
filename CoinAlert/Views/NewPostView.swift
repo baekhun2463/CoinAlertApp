@@ -192,6 +192,11 @@ struct NewPostView: View {
         }.resume()
     }
     
+    struct NicknameResponse: Decodable {
+        let nickname: String
+        let memberId: Int64!
+    }
+    
     private func getJWTFromKeychain() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

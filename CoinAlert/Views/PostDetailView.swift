@@ -188,6 +188,11 @@ struct PostDetailView: View {
             }
         }.resume()
     }
+    
+    struct NicknameResponse: Decodable {
+        let nickname: String
+        let memberId: Int64!
+    }
 
     func saveCommentToBackend(comment: PostComment) {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
