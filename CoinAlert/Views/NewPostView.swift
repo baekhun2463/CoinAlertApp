@@ -10,6 +10,7 @@ import SwiftUI
 struct NewPostView: View {
     @AppStorage("isLoggedIn") var isLoggedIn: Bool = false
 
+    @State private var nickName: String = "" // 닉네임을 서버에서 가져오기 때문에 초기값은 빈 문자열
     @State private var content: String = ""
     @State private var title: String = ""
     @State private var showAlert: Bool = false
@@ -103,7 +104,9 @@ struct NewPostView: View {
         
         guard let token = getJWTFromKeychain() else { return }
 
-        let postData = PostData(title: title, content: content)
+        fetchCurrentUser()
+        
+        let postData = PostData(author: nickName, title: title, content: content)
 
         guard let url = URL(string: "\(baseURL)/posts/newPost") else { return }
         
@@ -147,6 +150,48 @@ struct NewPostView: View {
         }.resume()
     }
     
+    func fetchCurrentUser() {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else {
+            errorMessage = "서버 URL을 가져오는 데 실패했습니다."
+            return
+        }
+        
+        guard let token = getJWTFromKeychain() else {
+            errorMessage = "인증 토큰을 가져오는 데 실패했습니다."
+            return
+        }
+        
+        guard let url = URL(string: "\(baseURL)/auth/getNickname") else {
+            errorMessage = "잘못된 URL입니다."
+            return
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                if let error = error {
+                    errorMessage = "오류 발생: \(error.localizedDescription)"
+                    return
+                }
+
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    errorMessage = "닉네임을 가져오는 데 실패했습니다."
+                    return
+                }
+
+                if let data = data, let result = try? JSONDecoder().decode(NicknameResponse.self, from: data) {
+                    nickName = result.nickname
+                } else {
+                    errorMessage = "데이터를 파싱하는 데 실패했습니다."
+                }
+            }
+        }.resume()
+    }
+    
     private func getJWTFromKeychain() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -168,6 +213,7 @@ struct NewPostView: View {
 }
 
 struct PostData: Encodable {
+    let author: String
     let title: String
     let content: String
 }

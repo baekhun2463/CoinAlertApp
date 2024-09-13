@@ -12,10 +12,27 @@ struct CommunityView: View {
                     let post = posts[index]
                     VStack(alignment: .leading) {
                         HStack {
-                            Image(systemName: "person.circle")
-                                .resizable()
+                            if let avatarUrlString = post.avatar_url, let avatarUrl = URL(string: avatarUrlString) {
+                                AsyncImage(url: avatarUrl) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                } placeholder: {
+                                    Image(systemName: "person.circle")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .opacity(0.5)
+                                }
                                 .frame(width: 40, height: 40)
+                                .clipShape(Circle()) // 이미지에 원형 클립 적용
+                            } else {
+                                Image(systemName: "person.circle")
+                                    .resizable()
+                                    .frame(width: 40, height: 40)
+                            }
                             VStack(alignment: .leading) {
+                                Text(post.author)
+                                    .font(.subheadline)
                                 Text(post.title)
                                     .font(.headline)
                                 Text(post.timestamp)
@@ -70,7 +87,6 @@ struct CommunityView: View {
         }
         .onAppear(perform: fetchPosts)
     }
-    
     
     func toggleLike(for index: Int) {
         guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
@@ -159,23 +175,17 @@ struct CommunityView: View {
                 let posts = try JSONDecoder().decode([Post].self, from: data)
                 DispatchQueue.main.async {
                     self.posts = posts
+                    print("Decoded posts: \(posts)")
                 }
-            } catch let DecodingError.dataCorrupted(context) {
-                print("Data corrupted: \(context.debugDescription)")
-            } catch let DecodingError.keyNotFound(key, context) {
-                print("Key '\(key)' not found: \(context.debugDescription)")
-            } catch let DecodingError.typeMismatch(type, context) {
-                print("Type mismatch for type '\(type)': \(context.debugDescription)")
-            } catch let DecodingError.valueNotFound(value, context) {
-                print("Value '\(value)' not found: \(context.debugDescription)")
             } catch {
-                print("Decoding error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.errorMessage = "Failed to decode posts: \(error.localizedDescription)"
+                    print("Decoding error: \(error.localizedDescription)")
+                }
             }
-
         }.resume()
     }
 
-    
     private func getJWTFromKeychain() -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -201,3 +211,4 @@ struct CommunityView_Previews: PreviewProvider {
         CommunityView()
     }
 }
+

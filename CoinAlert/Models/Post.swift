@@ -2,6 +2,8 @@ import Foundation
 
 struct Post: Decodable, Identifiable {
     var id: Int64
+    var avatar_url: String?
+    var author: String
     var title: String
     var content: String
     var timestamp: String
@@ -11,11 +13,13 @@ struct Post: Decodable, Identifiable {
     var comments: [PostComment]
 
     enum CodingKeys: String, CodingKey {
-        case id, title, content, timestamp, likes, commentCount, isLiked, comments
+        case id, avatar_url,author,title, content, timestamp, likes, commentCount, isLiked, comments
     }
 
-    init(id: Int64, title: String, content: String, timestamp: String, likes: Int, commentCount: Int, isLiked: Bool, comments: [PostComment]) {
+    init(id: Int64, avatar_url: String,author: String,title: String, content: String, timestamp: String, likes: Int, commentCount: Int, isLiked: Bool, comments: [PostComment]) {
         self.id = id
+        self.avatar_url = avatar_url
+        self.author = author
         self.title = title
         self.content = content
         self.timestamp = timestamp
