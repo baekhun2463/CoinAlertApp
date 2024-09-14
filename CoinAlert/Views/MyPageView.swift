@@ -38,6 +38,33 @@ struct MyPageView: View {
                                 .clipShape(Circle())
                                 .overlay(Circle().stroke(Color.white, lineWidth: 4))
                                 .shadow(radius: 10)
+                        } else if let imageUrl = URL(string: avatarUrl), avatarUrl != "" {
+                            AsyncImage(url: imageUrl) { phase in
+                                switch phase {
+                                case .empty:
+                                    ProgressView() // 로딩 중
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 100, height: 100)
+                                        .clipShape(Circle())
+                                        .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                                        .shadow(radius: 10)
+                                case .failure:
+                                    Image(systemName: "person.crop.circle.fill") // 기본 이미지
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 100, height: 100)
+                                        .foregroundColor(.gray)
+                                @unknown default:
+                                    Image(systemName: "person.crop.circle.fill")
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 100, height: 100)
+                                        .foregroundColor(.gray)
+                                }
+                            }
                         } else {
                             Image(systemName: "person.crop.circle.fill")
                                 .resizable()
@@ -48,10 +75,15 @@ struct MyPageView: View {
                     }
                     .sheet(isPresented: $showImagePicker) {
                         CustomImagePicker(image: $profileImage)
+                            .onDisappear {
+                                if let selectedImage = profileImage {
+                                    uploadImageToS3(image: selectedImage)
+                                }
+                            }
                     }
                 }
                 .padding()
-                .background(Color.white) // 배경색을 설정하여 고정된 상단 부분과 스크롤 내용 부분을 구분
+                .background(Color.white)
                 
                 Spacer()
                 
@@ -154,7 +186,7 @@ struct MyPageView: View {
                     if let avatar = result.avatar_url {
                         avatarUrl = avatar
                     } else {
-                        avatarUrl = "기본 이미지 URL" // 기본 이미지를 설정하거나 빈 문자열로 설정
+                        avatarUrl = "" // 빈 문자열로 설정
                     }
                     
                     userPosts = result.posts
@@ -162,6 +194,50 @@ struct MyPageView: View {
                 } else {
                     errorMessage = "데이터를 파싱하는 데 실패했습니다."
                 }
+            }
+        }.resume()
+    }
+
+    private func uploadImageToS3(image: UIImage) {
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
+
+        let fileName = UUID().uuidString + ".jpg"
+        let s3BucketURL = "https://your-s3-bucket-url/\(fileName)"
+
+        var request = URLRequest(url: URL(string: s3BucketURL)!)
+        request.httpMethod = "PUT"
+        request.setValue("image/jpeg", forHTTPHeaderField: "Content-Type")
+
+        URLSession.shared.uploadTask(with: request, from: imageData) { data, response, error in
+            guard error == nil else {
+                print("Error uploading image: \(error!.localizedDescription)")
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.avatarUrl = s3BucketURL
+                // 서버에 업데이트 요청
+                updateAvatarUrlInServer()
+            }
+        }.resume()
+    }
+
+    private func updateAvatarUrlInServer() {
+        guard let baseURL = Bundle.main.object(forInfoDictionaryKey: "baseURL") as? String else { return }
+        guard let token = getJWTFromKeychain() else { return }
+        guard let url = URL(string: "\(baseURL)/auth/updateAvatarUrl") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        let bodyData: [String: Any] = ["avatar_url": avatarUrl]
+        request.httpBody = try? JSONSerialization.data(withJSONObject: bodyData)
+
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("Failed to update avatar URL: \(error.localizedDescription)")
             }
         }.resume()
     }
@@ -191,9 +267,7 @@ struct UserDataResponse: Decodable {
     let avatar_url: String?
     let posts: [Post]
     let comments: [PostComment]
-
 }
-
 
 struct CustomImagePicker: UIViewControllerRepresentable {
     @Binding var image: UIImage?
