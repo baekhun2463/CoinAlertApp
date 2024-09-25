@@ -202,7 +202,7 @@ struct MyPageView: View {
         guard let imageData = image.jpegData(compressionQuality: 0.8) else { return }
 
         let fileName = UUID().uuidString + ".jpg"
-        let s3BucketURL = "https://your-s3-bucket-url/\(fileName)"
+        let s3BucketURL = "https://coinalertapp-baekhun.s3.ap-northeast-2.amazonaws.com/\(fileName)"
 
         var request = URLRequest(url: URL(string: s3BucketURL)!)
         request.httpMethod = "PUT"
